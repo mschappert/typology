@@ -1,0 +1,20 @@
+# Setting up docker image/container
+* Windows users need to open docker application before initiaing docker in WSL
+* Open WSL and run docker by typing docker Set working directory
+```
+cd /mnt/d/typology
+```
+* Build image using environment.yml file
+```
+docker build -t typology .
+```
+* Mount and run image (Example)
+```
+cd /mnt/d/typology
+docker run -p 8888:8888 -v $(pwd):/home/gisuser/ -it typology
+```
+* Exit Container (in WSL) ctrl + C
+* Remove containers
+```
+docker rm $(docker ps -aq)
+```
