@@ -1,34 +1,4 @@
-# using arcpy to Remap properties
-# patch number: 100, 200, 300
-# min, maZx, output, nodata
-# -70, -1.01, 100, 0
-# -1, -0.2, 200, 0 
-# -0.1, 0.1, 0, 0
-# -0.2, 1, 200, 0
-# 1.01, 70, 300, 0
-#"change unmatched/missing values to nodata"
-
-# area number: 10, 20, 30 
-# min, maZx, output, nodata
-# -70, -1.01, 10, 0
-# -1, -0.2, 20, 0
-# -0.1, 0.1, 0, 0
-# -0.2, 1, 20, 0
-# 1.01, 70, 30, 0
-
-# edge number: 1, 2, 3
-# min, maZx, output, nodata
-# -70, -1.01, 1, 0
-# -1, -0.2, 2, 0
-# -0.1, 0.1, 0, 0
-# -0.2, 1, 2, 0
-# -1.01, 70, 3, 0
-
-# then use arcpy to use geoprocessing raster calculator and edge, area, and patch number remap based on the same year 
-# (i want to add the values together ie, edge = 1, area = 20, patch = 300, so the final value is 321)
-
-# then make sure there is a raster attribute table with the values
-
+### Import Packages ###
 import os
 import arcpy
 import arcpy.sa
@@ -36,7 +6,6 @@ import multiprocessing
 import re
 import sys
 import time
-
 
 ### Parameters ###
 # Remap
@@ -46,7 +15,7 @@ output_dir = r"E:\GWB_Working\remap"
 metric_type = "edge" # or "area", "pn"
 
 # Combine Rasters
-# all rasters can be in the same folder - it searches by name
+# all rasters should be in the same folder- it searches by file name to combine by year
 combine_input = r"E:\GWB_Working\remap"
 combine_output = r"E:\GWB_Working\combined_output"
 
@@ -59,70 +28,6 @@ def get_year(filename):
     # Extract year range pattern like "90-95" from filename (eg. 90-95_area) using regex
     match = re.search(r"(\d{2}-\d{2})", filename)
     return match.group(1) if match else ""
-
-# Remap- Time Interval
-# def remap_raster(input_raster, output_dir, metric):
-#     """
-#     Remap raster values based on the specified metric (patch, area, edge).
-#     """
-#     try:
-#         arcpy.env.workspace = input_raster
-#         rasters = arcpy.ListRasters()
-#         for raster in rasters:
-        
-#             basename = os.path.basename(input_raster)
-#             year = get_year(basename)
-            
-#             # Define remap rules based on the metric
-#             if metric == "pn":
-#                 output_path = os.path.join(output_dir, f"{year}_pn_rmp.tif")
-#                 remap_rules = [
-#                     (-70, -1.01, 100),
-#                     (-1, -0.11, 200),
-#                     (-0.1, 0.1, "NODATA"),
-#                     (0.11, 1, 200),
-#                     (1.01, 70, 300)
-#                 ]
-#                 # Create a remap object
-#                 remap = arcpy.sa.RemapRange(remap_rules)
-#                 # Perform the remapping
-#                 output_raster = arcpy.sa.Reclassify(input_raster, "Value", remap, "NODATA") #0
-#             elif metric == "area":
-#                 output_path = os.path.join(output_dir, f"{year}_area_rmp.tif")
-#                 remap_rules = [
-#                     (-999, -1.01, 10),
-#                     (-1, -0.101, 20),
-#                     (-0.1, 0.1, "NODATA"),
-#                     (0.101, 1, 20),
-#                     (1.01, 999, 30)
-#                 ]
-#                 # Create a remap object with NODATA for missing values
-#                 remap = arcpy.sa.RemapRange(remap_rules) # ,"NODATA"
-#                 # Perform the remapping
-#                 output_raster = arcpy.sa.Reclassify(input_raster, "Value", remap,"NODATA") #0
-#             elif metric == "edge":
-#                 output_path = os.path.join(output_dir, f"{year}_edge_rmp.tif")
-#                 remap_rules = [
-#                     (-70, -1.01, 1),
-#                     (-1, -0.11, 2),
-#                     (-0.1, 0.1, "NODATA"),
-#                     (0.11, 1, 2),
-#                     (1.01, 70, 3)
-#                 ]
-#                 # Create a remap object
-#                 remap = arcpy.sa.RemapRange(remap_rules)
-#                 # Perform the remapping
-#                 output_raster = arcpy.sa.Reclassify(input_raster, "Value", remap, "NODATA") #0
-#             else:
-#                 raise ValueError("Invalid metric specified: {}".format(metric))
-
-#             if not arcpy.Exists(output_path):
-#                 output_raster.save(output_path)
-#                 print(f"Remapped successful: {output_path}")
-#         return output_path
-#     except Exception as e:
-#         print(f"Remap error: {str(e)}")
-#         return None
     
 def remap_raster(input_dir, output_dir, metric):
     """
@@ -180,7 +85,6 @@ def remap_raster(input_dir, output_dir, metric):
     except Exception as e:
         print(f"Remap error: {str(e)}")
         return None
-
 
 def combine_by_year(input_dir, output_dir):
     """Automatically combine edge, area, and patch rasters by year."""
