@@ -34,8 +34,15 @@ def remap_raster(input_dir, output_dir, metric):
     Remap raster values based on the specified metric (patch, area, edge).
     """
     try:
+        print(f"Setting workspace to: {input_dir}")
         arcpy.env.workspace = input_dir
         rasters = arcpy.ListRasters()
+        print(f"Found {len(rasters)} rasters: {rasters}")
+        
+        if not rasters:
+            print("No rasters found in workspace!")
+            return False
+            
         for raster in rasters:
             input_raster_path = os.path.join(input_dir, raster)
             basename = os.path.basename(input_raster_path)
@@ -197,16 +204,31 @@ def reclassify_typology(input_dir, output_dir):
 if __name__ == "__main__":
     print("Starting Processing")
     
+    # Debug: Check paths
+    print(f"Input raster: {input_raster}")
+    print(f"Input exists: {os.path.exists(input_raster)}")
+    print(f"Output dir: {output_dir}")
+    print(f"Output dir exists: {os.path.exists(output_dir)}")
+    
+    # Debug: Check ArcPy
+    try:
+        print(f"ArcPy version: {arcpy.GetInstallInfo()['Version']}")
+        arcpy.CheckOutExtension("Spatial")
+        print("Spatial Analyst license checked out")
+    except Exception as e:
+        print(f"ArcPy setup error: {e}")
+        sys.exit(1)
+    
     ## Remap Raster
     print("Starting remapping process...")
     rmp_start = time.time()
     rmp_results = remap_raster(
-        input_dir=input_raster,
+        input_dir=os.path.dirname(input_raster),
         output_dir=output_dir,
         metric=metric_type
     )
     rmp_duration = time.time() - rmp_start
-    print(f"Reamp completed in {rmp_duration:.2f} seconds")
+    print(f"Remap completed in {rmp_duration:.2f} seconds")
     
     ## Combine Rasters
     # print("Starting combining process...")
