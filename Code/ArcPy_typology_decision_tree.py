@@ -10,9 +10,9 @@ import time
 ### Parameters ###
 # Remap
 # run each metric type separately to remap
-input_raster = r"E:\GWB_Working\ETM\edge\edge_rg_MK_Z.tif"
-output_dir = r"E:\GWB_Working\remap"
-metric_type = "edge" # or "area", "pn"
+input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\ETM\31year\area\area_rg_MK_Z.tif"
+output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\ETM" #"E:\GWB_Working\remap"
+metric_type = "area" # or "area", "pn"
 
 # Combine Rasters
 # all rasters should be in the same folder- it searches by file name to combine by year
@@ -44,33 +44,48 @@ def remap_raster(input_dir, output_dir, metric):
             # Define remap rules based on the metric
             if metric == "pn":
                 output_path = os.path.join(output_dir, f"{year}_pn_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 100),
+                #     (-1, -0.11, 200),
+                #     (-0.1, 0.1, "NODATA"),
+                #     (0.11, 1, 200),
+                #     (1.01, 70, 300)
+                # ]
                 remap_rules = [
                     (-70, -1.01, 100),
-                    (-1, -0.11, 200),
-                    (-0.1, 0.1, "NODATA"),
-                    (0.11, 1, 200),
+                    (-1, 1, 200),
                     (1.01, 70, 300)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "area":
                 output_path = os.path.join(output_dir, f"{year}_area_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 10),
+                #     (-1, -0.101, 20),
+                #     (-0.1, 0.1, "NODATA"),
+                #     (0.101, 1, 20),
+                #     (1.01, 70, 30)
+                # ]
                 remap_rules = [
                     (-70, -1.01, 10),
-                    (-1, -0.101, 20),
-                    (-0.1, 0.1, "NODATA"),
-                    (0.101, 1, 20),
+                    (-1, 1, 20),
                     (1.01, 70, 30)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "edge":
                 output_path = os.path.join(output_dir, f"{year}_edge_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 1),
+                #     (-1, -0.11, 2),
+                #     (-0.1, 0.1, "NODATA"),
+                #     (0.11, 1, 2),
+                #     (1.01, 70, 3)
+                # ]
                 remap_rules = [
                     (-70, -1.01, 1),
-                    (-1, -0.11, 2),
-                    (-0.1, 0.1, "NODATA"),
-                    (0.11, 1, 2),
+                    (-1, 1, 2),
                     (1.01, 70, 3)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
@@ -129,9 +144,9 @@ def reclassify_typology(input_dir, output_dir):
             211: 3,  # shrinkage
             213: 4,  # perforation
             221: 5, 223: 5,  # deformation
-            222: 6,  # shift
+            222: 6,  # shift                                                                    (ie stable????)
             231: 7, 232: 7, 233: 7,  # enlargement
-            311: 8, 312: 8, 313: 8,  # dissection, fragmentation
+            311: 8, 312: 8, 313: 8,  # dissection
             321: 9, 322: 9, 323: 9,  # frag per se
             331: 10, 332: 10, 333: 10  # creation
             }
@@ -183,25 +198,15 @@ if __name__ == "__main__":
     print("Starting Processing")
     
     ## Remap Raster
-    # print("Starting remapping process...")
-    # rmp_start = time.time()
-    # rmp_results = remap_raster(
-    #     input_raster=input_raster,
-    #     output_dir=output_dir,
-    #     metric=metric_type
-    # )
-    # rmp_duration = time.time() - rmp_start
-    # print(f"Reamp completed in {rmp_duration:.2f} seconds")
-    ## Remap Raster
-    # print("Starting remapping process...")
-    # rmp_start = time.time()
-    # rmp_results = remap_raster(
-    #     input_raster=input_raster,
-    #     output_dir=output_dir,
-    #     metric=metric_type
-    # )
-    # rmp_duration = time.time() - rmp_start
-    # print(f"Reamp completed in {rmp_duration:.2f} seconds")
+    print("Starting remapping process...")
+    rmp_start = time.time()
+    rmp_results = remap_raster(
+        input_dir=input_raster,
+        output_dir=output_dir,
+        metric=metric_type
+    )
+    rmp_duration = time.time() - rmp_start
+    print(f"Reamp completed in {rmp_duration:.2f} seconds")
     
     ## Combine Rasters
     # print("Starting combining process...")
