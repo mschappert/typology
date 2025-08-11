@@ -10,8 +10,8 @@ import time
 ### Parameters ###
 # Remap
 # run each metric type separately to remap
-input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\ETM\31year\area\area_rg_MK_Z.tif"
-output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\ETM" #"E:\GWB_Working\remap"
+input_raster = r"W:\Mikayla\DATA\Projects\AF\Typology_collection9\ETM\31year\area\area_rg_MK_Z.tif"
+output_dir = r"C:\Users\mksch\Desktop" #"E:\GWB_Working\remap"
 metric_type = "area" # or "area", "pn"
 
 # Combine Rasters
@@ -69,7 +69,8 @@ def remap_raster(input_dir, output_dir, metric):
                 # ]
                 remap_rules = [
                     (-70, -1.01, 10),
-                    (-1, 1, 20),
+                    (-1, -0.01, 20),
+                    (0.01, 1, 20),
                     (1.01, 70, 30)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
