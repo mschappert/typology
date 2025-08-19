@@ -48,9 +48,9 @@ arcpy.env.pyramid = "NONE"
 # Parameters
 
 # Clip - This step is not necessary - only if needed 
-clip_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_in" # Input directory with rasters to clip
-clip_mask = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\binary_mask\binary_mask_shrink40.tif" # Mask raster for clipping
-clip_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_out"       
+# clip_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_in" # Input directory with rasters to clip
+# clip_mask = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\binary_mask\binary_mask_shrink40.tif" # Mask raster for clipping
+# clip_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_out"       
 
 # Reclassification
 rc_in = r"D:\NEW_WORKING\MSPA_results_P" # Input directory with rasters to reclassify
@@ -63,7 +63,7 @@ rc_type = "area"  # Select type: "edge" or "area"
 rg_out = r"D:\NEW_WORKING\rg" # Output directory for region group results
 neighbor="EIGHT" # Specifies neighbor connectivity: "FOUR" or "EIGHT"
 grouping = "within" # Assigns a zone for each group of connected cells
-link = "ADD_LINK" # Assings an ID to each group of connected cells (each group has a unique ID)
+link = "ADD_LINK" # Assigns an ID to each group of connected cells (each group has a unique ID)
 # Note: Input is area_rc_out by default, which is how the patch number is derived from area
 
 # Reclass Region Group- only to be used to set background values to 0
@@ -115,9 +115,8 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
     print(f"Processing {len(rasters)} rasters...")
 
     if use_multiprocessing:
-        # BATCH PARALLELISM: Process multiple files simultaneously
         # Use when ArcPy tool doesn't have native parallel processing
-        arcpy.env.parallelProcessingFactor = "0"  # Disable tool-level parallelism
+        arcpy.env.parallelProcessingFactor = "0"  # Disable parallelism
         input_paths = [os.path.join(input_dir, r) for r in rasters]
         func = partial(process_func, **kwargs)
         
@@ -125,9 +124,8 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
         with multiprocessing.Pool(processes=cores, initializer=init_worker) as pool:
             outputs = pool.map(func, input_paths)
     else:
-        # TOOL PARALLELISM: Let ArcPy tool handle parallelism internally
         # Use when ArcPy tool has native parallel processing support
-        arcpy.env.parallelProcessingFactor = "100%"  # Enable tool-level parallelism
+        arcpy.env.parallelProcessingFactor = "100%"  # Enable parallelism
         outputs = []
         for raster in rasters:
             input_path = os.path.join(input_dir, raster)
@@ -166,6 +164,16 @@ def clip_rasters(input_raster, output_dir=clip_out, clip_mask=clip_mask):
         return None
     
 def rc_rasters(input_raster, rc_type=rc_type):
+    """
+    Reclassifies MSPA output classes, preserving 3, 17, 103, and 117 as 1, and all others as 0.
+
+    - input raster:
+    - rc_type: 
+    * Note: set outpath in main function
+
+    Returns:
+    - reclassfied raster
+    """
     try:
         basename = os.path.basename(input_raster)
         year = get_year(basename)
@@ -205,6 +213,26 @@ def rc_rasters(input_raster, rc_type=rc_type):
         return None      
         
 def region_group(input_raster, output_dir=rg_out, number_neighbors=neighbor, zone_connectivity=grouping, add_link=link, excluded_value=0):
+    """
+    Applies RegionGroup to the input raster (using area) to create a raster with unique IDs for each group of connected cells which
+    describes the patch number.
+
+    Args:
+        input_raster (_type_): uses area_rc_out by default, which is how the patch number is derived from area
+        output_dir (_type_, optional): Output directory for region group results. Defaults to rg_out.
+        number_neighbors (_type_, optional): _description_. Defaults to neighbor.
+        zone_connectivity (_type_, optional): _description_. Defaults to grouping.
+        add_link (_type_, optional): _description_. Defaults to link.
+        excluded_value (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        _type_: _description_
+        
+neighbor="EIGHT" # Specifies neighbor connectivity: "FOUR" or "EIGHT"
+grouping = "within" # Assigns a zone for each group of connected cells
+link = "ADD_LINK" # Assigns an ID to each group of connected cells (each group has a unique ID)
+# Note: Input is area_rc_out by default, which is how the patch number is derived from area
+    """
     try:
         basename = os.path.basename(input_raster)
         year = get_year(basename)
@@ -228,6 +256,14 @@ def region_group(input_raster, output_dir=rg_out, number_neighbors=neighbor, zon
     
 # sometimes has weird background values that need to be set to 0
 def rc_rg_rasters(input_raster, output_dir=rc_rg_out):
+    """
+    Reclassifies RegionGroup raster to set background values to 0.
+    Args:
+        input_raster (str): Input raster file path.
+        output_dir (str, optional): Output directory for reclassified raster. Defaults to rc_rg_out.
+    Returns:
+        str: Output raster file path if successful, None otherwise.
+    """
     try:
         basename = os.path.basename(input_raster)
         output_path = os.path.join(output_dir, f"{os.path.splitext(basename)[0]}_rc.tif")
@@ -242,6 +278,19 @@ def rc_rg_rasters(input_raster, output_dir=rc_rg_out):
         return None
 
 def moving_window(input_raster, output_dir=mw_out, type=mw_type, radius=mw_radius, stat=stat):
+    """
+    Applies a moving windows analysis to the input raster using a specified radius and statistic type.
+    
+    Args:
+        input_raster (_type_): _description_
+        output_dir (_type_, optional): _description_. Defaults to mw_out.
+        type (_type_, optional): _description_. Defaults to mw_type.
+        radius (_type_, optional): _description_. Defaults to mw_radius.
+        stat (_type_, optional): _description_. Defaults to stat.
+
+    Returns:
+        _type_: _description_
+    """
     try:
         basename = os.path.basename(input_raster)
         year = get_year(basename)
