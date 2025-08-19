@@ -4,7 +4,7 @@ docker run --rm -it mschappert/basegis:latest
 
 or
 #laptop
-cd /mnt/d/typology/basegis/
+cd /mnt/d/typology/
 docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis
 
 #desktop
