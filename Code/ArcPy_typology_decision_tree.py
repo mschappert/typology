@@ -15,18 +15,18 @@ import time
 # metric_type = "pn" # "edge "or "area", "pn"
 
 # Remap - Interval
-input_raster = r"D:\typology\data\img_diff\area\*.tif" # change folder for each metric type
+input_raster = r"D:\typology\data\img_diff\pn\*.tif" # change folder for each metric type
 output_dir = r"D:\typology\data\remap_interval" #"E:\GWB_Working\remap"
-metric_type = "area" # "edge", "area", or "pn"
+metric_type = "pn" # "edge", "area", or "pn"
 
 # Combine Rasters
 # all rasters should be in the same folder- it searches by file name to combine by year
-combine_input = r"D:\typology\data\remap_timeseries"#r"D:\typology\data\old_remap_new_combine"# r"D:\typology\data\remap_test"
-combine_output = r"D:\typology\data\combined_timeseries" #r"D:\typology\data\old_remap_new_combine"
+combine_input = r"D:\typology\data\remap_interval"#r"D:\typology\data\old_remap_new_combine"# r"D:\typology\data\remap_test"
+combine_output = r"D:\typology\data\combined_interval" #r"D:\typology\data\old_remap_new_combine"
 
 # Reclassify and Add Typology Names
-rc_input = r"D:\typology\data\combined_timeseries"#r"E:\GWB_Working\combined_output"
-rc_output = r"D:\typology\data\rc_combined_timeseries"#r"E:\GWB_Working\typology_output"
+rc_input = r"D:\typology\data\combined_interval"#r"E:\GWB_Working\combined_output"
+rc_output = r"D:\typology\data\combined_rc_interval"#r"E:\GWB_Working\typology_output"
 
 ### Functions ###
 def get_year(filename):
@@ -362,16 +362,16 @@ if __name__ == "__main__":
 
     
     ## Remap Raster - Time Interval
-    print("Starting remapping process...")
-    rmp_start = time.time()
-    rmp_results = remap_time_interval(
-        input_dir=os.path.dirname(input_raster),
-        output_dir=output_dir,
-        metric=metric_type
-    )
-    rmp_duration = time.time() - rmp_start
-    # print(f"Remap completed in {rmp_duration:.2f} seconds") # just prints seconds
-    print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
+    # print("Starting remapping process...")
+    # rmp_start = time.time()
+    # rmp_results = remap_time_interval(
+    #     input_dir=os.path.dirname(input_raster),
+    #     output_dir=output_dir,
+    #     metric=metric_type
+    # )
+    # rmp_duration = time.time() - rmp_start
+    # # print(f"Remap completed in {rmp_duration:.2f} seconds") # just prints seconds
+    # print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
     
     ## Combine Rasters
     # print("Starting combining process...")
@@ -384,11 +384,11 @@ if __name__ == "__main__":
     # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
     
     ## Reclassify Combined Raster and Add Typology Names
-    # print("Starting reclassification process...")
-    # rc_start = time.time()
-    # reclassify_typology(
-    #     input_dir= rc_input,
-    #     output_dir= rc_output
-    # )
-    # rc_duration = time.time() - rc_start
-    # print("Reclassification completed in {:.0f} mins. {:.2f} sec.".format(rc_duration // 60, rc_duration % 60))
+    print("Starting reclassification process...")
+    rc_start = time.time()
+    reclassify_typology(
+        input_dir= rc_input,
+        output_dir= rc_output
+    )
+    rc_duration = time.time() - rc_start
+    print("Reclassification completed in {:.0f} mins. {:.2f} sec.".format(rc_duration // 60, rc_duration % 60))

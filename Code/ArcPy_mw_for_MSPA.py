@@ -125,7 +125,7 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
             outputs = pool.map(func, input_paths)
     else:
         # Use when ArcPy tool has native parallel processing support
-        arcpy.env.parallelProcessingFactor = "100%"  # Enable parallelism
+        arcpy.env.parallelProcessingFactor = "80%"  # Enable parallelism
         outputs = []
         for raster in rasters:
             input_path = os.path.join(input_dir, raster)
