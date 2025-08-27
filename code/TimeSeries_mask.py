@@ -1,3 +1,5 @@
+# this creates the binary mask before calculating the z-scores
+
 import arcpy
 import arcpy.sa
 import os
