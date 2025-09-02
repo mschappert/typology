@@ -10,23 +10,23 @@ import time
 ### Parameters ###
 # Remap - Time Series
 #run each metric type separately to remap
-input_raster = r"D:\typology\data\TS_zscore\area_MK_tau_z.tif"
-output_dir = r"D:\typology\data\remap_timeseries"
-metric_type = "area" # "edge "or "area", "pn"
+# input_raster = r"D:\typology\data\TS_zscore\area_MK_tau_z.tif"
+# output_dir = r"D:\typology\data\remap_timeseries"
+# metric_type = "area" # "edge "or "area", "pn"
 
 # Remap - Interval
-# input_raster = r"D:\typology\data\img_diff\pn\*.tif" # change folder for each metric type
+# input_raster = r"D:\typology\data\img_diff\edge\*.tif" # change folder for each metric type
 # output_dir = r"D:\typology\data\remap_interval" #"E:\GWB_Working\remap"
-# metric_type = "pn" # "edge", "area", or "pn"
+# metric_type = "edge" # "edge", "area", or "pn"
 
 # Combine Rasters
 # all rasters should be in the same folder- it searches by file name to combine by year
-combine_input = r"D:\typology\data\remap_timeseries"#r"D:\typology\data\old_remap_new_combine"# r"D:\typology\data\remap_test"
-combine_output = r"D:\typology\data\combined_timeseries" #r"D:\typology\data\old_remap_new_combine"
+# combine_input = r"D:\typology\data\remap_timeseries" #interval" #timeseries"
+# combine_output = r"D:\typology\data\combined_timeseries" #interval" #timeseries"
 
 # Reclassify and Add Typology Names
-rc_input = r"D:\typology\data\combined_timeseries"#r"E:\GWB_Working\combined_output"
-rc_output = r"D:\typology\data\combined_rc_timeseries"#r"E:\GWB_Working\typology_output"
+rc_input = r"D:\typology\data\combined_timeseries" #interval"#r"E:\GWB_Working\combined_output"
+rc_output = r"D:\typology\data\combined_rc_timeseries" #interval"#r"E:\GWB_Working\typology_output"
 
 ### Functions ###
 def get_year(filename):
@@ -125,27 +125,27 @@ def remap_time_interval(input_dir, output_dir, metric):
             if metric == "pn":
                 output_path = os.path.join(output_dir, f"{year}_pn_rmp.tif")
                 remap_rules = [
-                    (-70, -0.000001, 100),
+                    (-3005, -0.01, 100),
                     (0, 0, 200),
-                    (0.000001, 70, 300)
+                    (0.01, 3005, 300)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "area":
                 output_path = os.path.join(output_dir, f"{year}_area_rmp.tif")
                 remap_rules = [
-                    (-70, -0.000001, 10),
+                    (-3005, -0.01, 10),
                     (0, 0, 20),
-                    (0.000001, 70, 30)
+                    (0.01, 3005, 30)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "edge":
                 output_path = os.path.join(output_dir, f"{year}_edge_rmp.tif")
                 remap_rules = [
-                    (-70, -0.000001, 1),
+                    (-3005, -0.01, 1),
                     (0, 0, 2),
-                    (0.000001, 70, 3)
+                    (0.01, 3005, 3)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
@@ -269,12 +269,12 @@ def reclassify_typology(input_dir, output_dir):
             recode_map = {
             #212: 0,  # background
             111: 1, 112: 1, 113: 1,  # attrition
-            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, 130: 2,  # aggregation (added 130 (decrease pn, increase area, no edge))
+            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, 130: 2, 120: 2,  # aggregation (added 130 (decrease pn, increase area, no edge- patch size = window size), 120 = for inside continuous forest areas)
             211: 3,  # shrinkage
-            213: 4,  # perforation
+            213: 4, 210:4,  # perforation (added 210 = stable pn, decrease area, perforation inside continuous forest areas)
             221: 5, 223: 5,  # deformation
-            222: 6, 220: 6, # persistent  # originally shift was jus 222
-            231: 7, 232: 7, 233: 7,  # enlargement
+            222: 6, 220: 6, # persistent  # originally shift was just 222
+            231: 7, 232: 7, 233: 7, 230: 7,  # enlargement - (added 230 = if patch becomes too large for window)
             311: 8, 312: 8, 313: 8,  # dissection
             321: 9, 322: 9, 323: 9,  # frag per se
             331: 10, 332: 10, 333: 10  # creation
@@ -373,14 +373,14 @@ if __name__ == "__main__":
     # print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
     
     ## Combine Rasters
-    print("Starting combining process...")
-    c_start = time.time()
-    c_results = combine_by_year(
-        input_dir= combine_input,
-        output_dir= combine_output
-    )
-    c_duration = time.time() - c_start
-    print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
+    # print("Starting combining process...")
+    # c_start = time.time()
+    # c_results = combine_by_year(
+    #     input_dir= combine_input,
+    #     output_dir= combine_output
+    # )
+    # c_duration = time.time() - c_start
+    # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
     
     ## Reclassify Combined Raster and Add Typology Names
     print("Starting reclassification process...")
@@ -391,3 +391,6 @@ if __name__ == "__main__":
     )
     rc_duration = time.time() - rc_start
     print("Reclassification completed in {:.0f} mins. {:.2f} sec.".format(rc_duration // 60, rc_duration % 60))
+    
+    
+    ## add an excel export of attribute tables 
