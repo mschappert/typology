@@ -1,4 +1,5 @@
 # this creates the binary mask before calculating the z-scores
+# each metric (pn, edge, area) has different no data areas (different coverages) so need to create separate masks
 
 import arcpy
 import arcpy.sa

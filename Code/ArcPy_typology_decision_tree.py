@@ -271,11 +271,11 @@ def reclassify_typology(input_dir, output_dir):
             111: 1, 112: 1, 113: 1,  # attrition
             121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, 130: 2, 120: 2,  # aggregation (added 130 (decrease pn, increase area, no edge- patch size = window size), 120 = for inside continuous forest areas)
             211: 3,  # shrinkage
-            213: 4, 210:4,  # perforation (added 210 = stable pn, decrease area, perforation inside continuous forest areas)
+            213: 4, #210: 4,  # perforation (added 210 = stable pn, decrease area, perforation inside continuous forest areas)
             221: 5, 223: 5,  # deformation
             222: 6, 220: 6, # persistent  # originally shift was just 222
             231: 7, 232: 7, 233: 7, 230: 7,  # enlargement - (added 230 = if patch becomes too large for window)
-            311: 8, 312: 8, 313: 8,  # dissection
+            311: 8, 312: 8, 313: 8, #310: 8,  # dissection
             321: 9, 322: 9, 323: 9,  # frag per se
             331: 10, 332: 10, 333: 10  # creation
             }
