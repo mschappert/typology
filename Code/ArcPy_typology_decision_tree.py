@@ -63,29 +63,44 @@ def remap_time_series(input_dir, output_dir, metric):
                 #     (0.11, 1, 200),
                 #     (1.01, 70, 300)
                 # ]
+                # remap_rules = [
+                #     (-70, -1.01, 100),
+                #     (-1, 1, 200),
+                #     (1.01, 70, 300)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 100),
-                    (-1, 1, 200),
-                    (1.01, 70, 300)
+                    (-70, -0.51, 100),
+                    (-0.5, 0.5, 200),
+                    (0.51, 70, 300)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "area":
                 output_path = os.path.join(output_dir, f"{year}_area_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 10),
+                #     (-1, -0.01, 20),
+                #     (0.01, 1, 20),
+                #     (1.01, 70, 30)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 10),
-                    (-1, -0.01, 20),
-                    (0.01, 1, 20),
-                    (1.01, 70, 30)
+                    (-70, -0.51, 10),
+                    (-0.5, 0.5, 20),
+                    (0.51, 70, 30)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "edge":
                 output_path = os.path.join(output_dir, f"{year}_edge_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 1),
+                #     (-1, 1, 2),
+                #     (1.01, 70, 3)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 1),
-                    (-1, 1, 2),
-                    (1.01, 70, 3)
+                    (-70, -0.51, 1),
+                    (-0.5, 0.5, 2),
+                    (0.51, 70, 3)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
