@@ -53,10 +53,10 @@ arcpy.env.pyramid = "NONE"
 # clip_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_out"       
 
 # Reclassification
-rc_in = r"D:\NEW_WORKING\MSPA_results_P" # Input directory with rasters to reclassify
-edge_rc_out = r"D:\NEW_WORKING\MSPA_rc_edge" # Output directory for edge reclassification
-area_rc_out = r"D:\NEW_WORKING\MSPA_rc_area" # Output directory for area reclassification
-rc_type = "area"  # Select type: "edge" or "area"
+rc_in = r"S:\Mikayla\DATA\Projects\AF\Typology_collection9\2_MSPA\MSPA_renamed"#r"D:\NEW_WORKING\MSPA_results_P" # Input directory with rasters to reclassify
+edge_rc_out = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge"#r"D:\NEW_WORKING\MSPA_rc_edge" # Output directory for edge reclassification
+area_rc_out = r"E:\typology\data\3_MovingWindow\MSPA_rc_area"#r"D:\NEW_WORKING\MSPA_rc_area" # Output directory for area reclassification
+rc_type = "edge"  # Select type: "edge" or "area"
 # Note: patch number is not reclassified, since it is derived from area using RegionGroup
 
 # RegionGroup- only to be run on area to calculate patch number
@@ -71,11 +71,11 @@ rc_rg_in = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg" # Input directory for reclass 
 rc_rg_out = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg_rc" # Output directory for reclass region group
 
 # Moving window
-edge_mw_in = r"D:\NEW_WORKING\MSPA_rc_edge" # Input folder for data that will be used for edge moving window
-area_mw_in = r"D:\NEW_WORKING\MSPA_rc_area" # Input folder for data that will be used for area moving window
+edge_mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge" # Input folder for data that will be used for edge moving window
+area_mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_area" # Input folder for data that will be used for area moving window
 pn_mw_in = r"D:\NEW_WORKING\rg_rc" # Input folder for data that will be used for patch number moving window
-mw_out = r"D:\NEW_WORKING\mw_results" # Output folder to hold moving window results
-mw_type = "area"  # Select type: either "edge", "area", or "pn"
+mw_out = r"E:\typology\data\3_MovingWindow\mw_results"#r"D:\NEW_WORKING\mw_results" # Output folder to hold moving window results
+mw_type = "edge"  # Select type: either "edge", "area", or "pn"
 mw_radius = 1000
 stat = "SUM"  # Select statistics type: "VARIETY", or "SUM"
 
@@ -139,29 +139,29 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
 #########################################    
 
 # clip function with NoData set to 0
-def clip_rasters(input_raster, output_dir=clip_out, clip_mask=clip_mask):
-    try:
-        basename = os.path.basename(input_raster)
-        year = get_year(basename)
-        output_path = os.path.join(output_dir, f"{year}_c.tif")
+# def clip_rasters(input_raster, output_dir=clip_out, clip_mask=clip_mask):
+#     try:
+#         basename = os.path.basename(input_raster)
+#         year = get_year(basename)
+#         output_path = os.path.join(output_dir, f"{year}_c.tif")
 
-        # clip
-        if not arcpy.Exists(output_path):
-            arcpy.env.snapRaster = clip_mask # environment: snap raster
+#         # clip
+#         if not arcpy.Exists(output_path):
+#             arcpy.env.snapRaster = clip_mask # environment: snap raster
             
-            # First extract by mask
-            clipped = arcpy.sa.ExtractByMask(input_raster, clip_mask)
+#             # First extract by mask
+#             clipped = arcpy.sa.ExtractByMask(input_raster, clip_mask)
             
-            # Then convert NoData to 0
-            with arcpy.EnvManager(nodata="NONE"):
-                final_raster = arcpy.sa.Con(arcpy.sa.IsNull(clipped), 0, clipped)
-                final_raster.save(output_path)
+#             # Then convert NoData to 0
+#             with arcpy.EnvManager(nodata="NONE"):
+#                 final_raster = arcpy.sa.Con(arcpy.sa.IsNull(clipped), 0, clipped)
+#                 final_raster.save(output_path)
                 
-            print(f"Clip successful with NoData set to 0: {output_path}")
-        return output_path
-    except Exception as e:
-        print(f"Clip error: {str(e)}")
-        return None
+#             print(f"Clip successful with NoData set to 0: {output_path}")
+#         return output_path
+#     except Exception as e:
+#         print(f"Clip error: {str(e)}")
+#         return None
     
 def rc_rasters(input_raster, rc_type=rc_type):
     """
@@ -184,7 +184,10 @@ def rc_rasters(input_raster, rc_type=rc_type):
             # in reality- this should work but it doesn't - so i used Con
             # remap = arcpy.sa.RemapValue([[3, 1],
             #                              [103, 1]])
-            out_raster = arcpy.sa.Con((arcpy.sa.Raster(input_raster) == 3) | (arcpy.sa.Raster(input_raster) == 103), 1, 0)
+            out_raster = arcpy.sa.Con(
+                (arcpy.sa.Raster(input_raster) == 3) | # edge
+                (arcpy.sa.Raster(input_raster) == 103) | #edge
+                (arcpy.sa.Raster(input_raster) == 105), 1, 0) #perforation
         elif rc_type == "area":
             output_path = os.path.join(area_rc_out, f"{year}_rc_area.tif")
             # remap = arcpy.sa.RemapValue([[3, 1],
@@ -192,10 +195,11 @@ def rc_rasters(input_raster, rc_type=rc_type):
             #                              [17, 1],
             #                              [117, 1]])
             out_raster = arcpy.sa.Con(
-                (arcpy.sa.Raster(input_raster) == 3) | 
-                (arcpy.sa.Raster(input_raster) == 103) | 
-                (arcpy.sa.Raster(input_raster) == 17) | 
-                (arcpy.sa.Raster(input_raster) == 117), 1, 0)
+                (arcpy.sa.Raster(input_raster) == 3) | # edge
+                (arcpy.sa.Raster(input_raster) == 103) | # edge
+                (arcpy.sa.Raster(input_raster) == 105) | # perforation
+                (arcpy.sa.Raster(input_raster) == 17) | # core area
+                (arcpy.sa.Raster(input_raster) == 117), 1, 0) # core area
         else:
             print(f"Error: Undefined rc_type. Must be 'edge' or 'area'.")
             return None
@@ -367,18 +371,18 @@ if __name__ == "__main__":
     # print(f"Reclass Region Group completed in {rc_rg_duration:.2f} seconds")
 
     ## Run moving window stage
-    # print("Starting Moving Window")
-    # mw_start = time.time()
-    # mw_results = process_rasters(
-    #     moving_window, 
-    #     area_mw_in, # change with mw type 
-    #     use_multiprocessing=True,  # Set to True for multiprocessing.Pool
-    #     output_dir=mw_out, 
-    #     type=mw_type, 
-    #     radius=mw_radius, 
-    #     stat=stat
-    # )
-    # mw_duration = time.time() - mw_start
-    # print(f"Moving window completed in {mw_duration:.2f} seconds")
+    print("Starting Moving Window")
+    mw_start = time.time()
+    mw_results = process_rasters(
+        moving_window, 
+        edge_mw_in, # change with mw type 
+        use_multiprocessing=True,  # Set to True for multiprocessing.Pool
+        output_dir=mw_out, 
+        type=mw_type, 
+        radius=mw_radius, 
+        stat=stat
+    )
+    mw_duration = time.time() - mw_start
+    print(f"Moving window completed in {mw_duration:.2f} seconds")
     
     print("Processing complete!")
