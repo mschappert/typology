@@ -15,18 +15,18 @@ import time
 # metric_type = "area" # "edge "or "area", "pn"
 
 # Remap - Interval
-# input_raster = r"D:\typology\data\img_diff\edge\*.tif" # change folder for each metric type
-# output_dir = r"D:\typology\data\remap_interval" #"E:\GWB_Working\remap"
-# metric_type = "edge" # "edge", "area", or "pn"
+# input_raster = r"D:\typology\data\4_TS_and_TI\img_diff\pn\*.tif" # change folder for each metric type
+# output_dir = r"D:\typology\data\5_Typology\remap_interval" #"E:\GWB_Working\remap"
+# metric_type = "pn" # "edge", "area", or "pn"
 
 # Combine Rasters
 # all rasters should be in the same folder- it searches by file name to combine by year
-# combine_input = r"D:\typology\data\remap_timeseries" #interval" #timeseries"
-# combine_output = r"D:\typology\data\combined_timeseries" #interval" #timeseries"
+combine_input = r"D:\typology\data\5_Typology\remap_interval" #interval" #timeseries"
+combine_output = r"D:\typology\data\5_Typology\combined_interval" #interval" #timeseries"
 
 # Reclassify and Add Typology Names
-rc_input = r"D:\typology\data\combined_timeseries" #interval"#r"E:\GWB_Working\combined_output"
-rc_output = r"D:\typology\data\combined_rc_timeseries" #interval"#r"E:\GWB_Working\typology_output"
+rc_input = r"D:\typology\data\5_Typology\combined_interval" #interval"#r"E:\GWB_Working\combined_output"
+rc_output = r"D:\typology\data\5_Typology\combined_rc_interval" #interval"#r"E:\GWB_Working\typology_output"
 
 ### Functions ###
 def get_year(filename):
@@ -282,15 +282,14 @@ def reclassify_typology(input_dir, output_dir):
             
             # Define typology recoding (original_value: new_val)
             recode_map = {
-            #212: 0,  # background
             111: 1, 112: 1, 113: 1,  # attrition
-            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, 130: 2, 120: 2,  # aggregation (added 130 (decrease pn, increase area, no edge- patch size = window size), 120 = for inside continuous forest areas)
-            211: 3,  # shrinkage
-            213: 4, #210: 4,  # perforation (added 210 = stable pn, decrease area, perforation inside continuous forest areas)
-            221: 5, 223: 5,  # deformation
-            222: 6, 220: 6, # persistent  # originally shift was just 222
+            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, # aggregation
+            211: 3, # shrinkage
+            213: 4, # perforation 
+            221: 5, 223: 5, # deformation
+            222: 6, 220: 6, # persistent
             231: 7, 232: 7, 233: 7, 230: 7,  # enlargement - (added 230 = if patch becomes too large for window)
-            311: 8, 312: 8, 313: 8, #310: 8,  # dissection
+            311: 8, 312: 8, 313: 8,  # dissection
             321: 9, 322: 9, 323: 9,  # frag per se
             331: 10, 332: 10, 333: 10  # creation
             }
