@@ -15,18 +15,17 @@ def mann_kendall_tau(data, axis=-1):
     
     return np.apply_along_axis(mk_tau_1d, axis, data)
 
-def stack_images(items, bbox=None, resolution=30):
-    """Stack satellite images using stackstac"""
+def stack_and_analyze(items, bbox=None, resolution=30):
+    """Stack satellite images and calculate Mann-Kendall tau"""
+    # Stack images using stackstac
     stack = stackstac.stack(
         items,
         bounds=bbox,
         resolution=resolution,
         dtype="float32"
     )
-    return stack
-
-def calculate_mann_kendall_tau(stack):
-    """Calculate Mann-Kendall tau across time dimension"""
+    
+    # Calculate Mann-Kendall tau across time dimension
     tau = xr.apply_ufunc(
         mann_kendall_tau,
         stack,
@@ -35,14 +34,10 @@ def calculate_mann_kendall_tau(stack):
         dask="allowed",
         vectorize=True
     )
-    return tau
+    
+    return stack, tau
 
 # Example usage:
 # items = your_stac_items  # STAC items from pystac-client
 # bbox = [-120, 35, -119, 36]  # [minx, miny, maxx, maxy]
-# 
-# # Step 1: Stack images
-# stack = stack_images(items, bbox)
-# 
-# # Step 2: Calculate Mann-Kendall tau
-# tau_result = calculate_mann_kendall_tau(stack)
+# stack, tau_result = stack_and_analyze(items, bbox)
