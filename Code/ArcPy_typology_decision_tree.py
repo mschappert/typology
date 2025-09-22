@@ -10,23 +10,27 @@ import time
 ### Parameters ###
 # Remap - Time Series
 #run each metric type separately to remap
-# input_raster = r"D:\typology\data\TS_zscore\area_MK_tau_z.tif"
-# output_dir = r"D:\typology\data\remap_timeseries"
-# metric_type = "area" # "edge "or "area", "pn"
+# input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
+# output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\5_Typology\remap_timeseries"
+# metric_type = "edge" # "edge "or "area", "pn"
+
+input_raster = r"D:\Typology\data\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
+output_dir = r"D:\typology\data\5_Typology\remap_timeseries"
+metric_type = "edge" # "edge "or "area", "pn"
 
 # Remap - Interval
-# input_raster = r"D:\typology\data\img_diff\edge\*.tif" # change folder for each metric type
-# output_dir = r"D:\typology\data\remap_interval" #"E:\GWB_Working\remap"
-# metric_type = "edge" # "edge", "area", or "pn"
+# input_raster = r"D:\typology\data\4_TS_and_TI\img_diff\pn\*.tif" # change folder for each metric type
+# output_dir = r"D:\typology\data\5_Typology\remap_interval" #"E:\GWB_Working\remap"
+# metric_type = "pn" # "edge", "area", or "pn"
 
-# Combine Rasters
+# Combine Rasters - Time Interval or Time Series
 # all rasters should be in the same folder- it searches by file name to combine by year
-# combine_input = r"D:\typology\data\remap_timeseries" #interval" #timeseries"
-# combine_output = r"D:\typology\data\combined_timeseries" #interval" #timeseries"
+combine_input = r"D:\typology\data\5_Typology\remap_timeseries" #interval" #timeseries"
+combine_output = r"D:\typology\data\5_Typology\combined_timeseries" #interval" #timeseries"
 
-# Reclassify and Add Typology Names
-rc_input = r"D:\typology\data\combined_timeseries" #interval"#r"E:\GWB_Working\combined_output"
-rc_output = r"D:\typology\data\combined_rc_timeseries" #interval"#r"E:\GWB_Working\typology_output"
+# Reclassify and Add Typology Names - Time Interval or Time Series
+rc_input = r"D:\typology\data\5_Typology\combined_timeseries" #interval"#r"E:\GWB_Working\combined_output"
+rc_output = r"D:\typology\data\5_Typology\combined_rc_timeseries" #interval"#r"E:\GWB_Working\typology_output"
 
 ### Functions ###
 def get_year(filename):
@@ -63,29 +67,44 @@ def remap_time_series(input_dir, output_dir, metric):
                 #     (0.11, 1, 200),
                 #     (1.01, 70, 300)
                 # ]
+                # remap_rules = [
+                #     (-70, -1.01, 100),
+                #     (-1, 1, 200),
+                #     (1.01, 70, 300)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 100),
-                    (-1, 1, 200),
-                    (1.01, 70, 300)
+                    (-70, -0.5, 100),
+                    (-0.5, 0.5, 200),
+                    (0.5, 70, 300)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "area":
                 output_path = os.path.join(output_dir, f"{year}_area_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 10),
+                #     (-1, -0.01, 20),
+                #     (0.01, 1, 20),
+                #     (1.01, 70, 30)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 10),
-                    (-1, -0.01, 20),
-                    (0.01, 1, 20),
-                    (1.01, 70, 30)
+                    (-70, -0.5, 10),
+                    (-0.5, 0.5, 20),
+                    (0.5, 70, 30)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
             elif metric == "edge":
                 output_path = os.path.join(output_dir, f"{year}_edge_rmp.tif")
+                # remap_rules = [
+                #     (-70, -1.01, 1),
+                #     (-1, 1, 2),
+                #     (1.01, 70, 3)
+                # ]
                 remap_rules = [
-                    (-70, -1.01, 1),
-                    (-1, 1, 2),
-                    (1.01, 70, 3)
+                    (-70, -0.5, 1),
+                    (-0.5, 0.5, 2),
+                    (0.5, 70, 3)
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
@@ -160,30 +179,6 @@ def remap_time_interval(input_dir, output_dir, metric):
         print(f"Remap error: {str(e)}")
         return None
 
-# This is the original combine which only calculates values when they over lap (100 + 20 + 2 = 122, NOT 100 + 20 + 0 = 0)
-# def combine_by_year(input_dir, output_dir):
-#     """Automatically combine edge, area, and patch rasters by year."""
-#     edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
-    
-#     for edge_file in edge_files:
-#         year = get_year(edge_file)
-#         area_file = f"{year}_area_rmp.tif"
-#         patch_file = f"{year}_pn_rmp.tif"
-        
-#         edge_path = os.path.join(input_dir, edge_file)
-#         area_path = os.path.join(input_dir, area_file)
-#         patch_path = os.path.join(input_dir, patch_file)
-        
-#         if os.path.exists(area_path) and os.path.exists(patch_path):
-#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
-#             try:
-#                 combined = arcpy.sa.Raster(edge_path) + arcpy.sa.Raster(area_path) + arcpy.sa.Raster(patch_path)
-#                 combined.save(output_path)
-#                 arcpy.management.BuildRasterAttributeTable(output_path)
-#                 print(f"Combined raster created: {output_path}")
-#             except Exception as e:
-#                 print(f"Combine error: {str(e)}")
-
 # takes all posibilties and adds them together (100 + 20 + 2 = 122, AND 100 + 20 + 0 = 0)      
 def combine_by_year(input_dir, output_dir):
     """Automatically combine edge, area, and patch rasters by year."""
@@ -217,46 +212,34 @@ def combine_by_year(input_dir, output_dir):
             except Exception as e:
                 print(f"Combine error: {str(e)}")
 
-# def combine_by_year(input_dir, output_dir):
-#     try:
-#         # Get edge files and find corresponding area/patch files
-#         edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
-        
-#         for edge_file in edge_files:
-#             year = get_year(edge_file)
-#             area_file = f"{year}_area_rmp.tif"
-#             pn_file = f"{year}_pn_rmp.tif"
+# combine TS output which has only one edge, area, and pn raster in the folder              
+def combine_TS(input_dir, output_dir):
+    """Combine edge, area, and pn rasters."""
+    edge_files = [f for f in os.listdir(input_dir) if 'edge' in f and f.endswith('.tif')]
+    area_files = [f for f in os.listdir(input_dir) if 'area' in f and f.endswith('.tif')]
+    pn_files = [f for f in os.listdir(input_dir) if 'pn' in f and f.endswith('.tif')]
+    
+    if edge_files and area_files and pn_files:
+        try:
+            edge_r = arcpy.sa.Raster(os.path.join(input_dir, edge_files[0]))
+            area_r = arcpy.sa.Raster(os.path.join(input_dir, area_files[0]))
+            pn_r = arcpy.sa.Raster(os.path.join(input_dir, pn_files[0]))
             
-#             # File paths
-#             edge_path = os.path.join(input_dir, edge_file)
-#             area_path = os.path.join(input_dir, area_file)
-#             pn_path = os.path.join(input_dir, pn_file)
-#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
+            combined = arcpy.sa.Con(arcpy.sa.IsNull(edge_r), 0, edge_r) + \
+                      arcpy.sa.Con(arcpy.sa.IsNull(area_r), 0, area_r) + \
+                      arcpy.sa.Con(arcpy.sa.IsNull(pn_r), 0, pn_r)
             
-#             # Use Raster Calculator to combine
-#             # expression = f'"{patch_path}" + "{area_path}" + "{edge_path}"'
-#             # arcpy.gp.RasterCalculator_sa(expression, output_path)
-#             print(f"Combined raster saved: {output_path}")
-            
-#         return True
-#     except Exception as e:
-#         print(f"Combine error: {str(e)}")
-        
-#         if os.path.exists(area_path) and os.path.exists(patch_path):
-#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
-#             try:
-#                 combined = arcpy.sa.Raster(edge_path) + arcpy.sa.Raster(area_path) + arcpy.sa.Raster(patch_path)
-#                 combined.save(output_path)
-#                 arcpy.management.BuildRasterAttributeTable(output_path)
-#                 print(f"Combined raster created: {output_path}")
-#             except Exception as e:
-#                 print(f"Combine error: {str(e)}")
-
+            output_path = os.path.join(output_dir, "combined.tif")
+            combined.save(output_path)
+            arcpy.management.BuildRasterAttributeTable(output_path)
+            print(f"Combined raster created: {output_path}")
+        except Exception as e:
+            print(f"Combine error: {str(e)}")
                 
 # Reclassify combined raster values to typology categories and add attribute table labels
 def reclassify_typology(input_dir, output_dir):
     """Reclassify all combined rasters in the input directory."""
-    combined_files = [f for f in os.listdir(input_dir) if f.endswith('_combined.tif')]
+    combined_files = [f for f in os.listdir(input_dir) if f.endswith('combined.tif') or f.endswith('_combined.tif')] #for both TS and TI outputs
     
     for combined_file in combined_files:
         try:
@@ -267,15 +250,14 @@ def reclassify_typology(input_dir, output_dir):
             
             # Define typology recoding (original_value: new_val)
             recode_map = {
-            #212: 0,  # background
             111: 1, 112: 1, 113: 1,  # attrition
-            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, 130: 2, 120: 2,  # aggregation (added 130 (decrease pn, increase area, no edge- patch size = window size), 120 = for inside continuous forest areas)
-            211: 3,  # shrinkage
-            213: 4, #210: 4,  # perforation (added 210 = stable pn, decrease area, perforation inside continuous forest areas)
-            221: 5, 223: 5,  # deformation
-            222: 6, 220: 6, # persistent  # originally shift was just 222
+            121: 2, 122: 2, 123: 2, 131: 2, 132: 2, 133: 2, # aggregation
+            211: 3, # shrinkage
+            213: 4, # perforation 
+            221: 5, 223: 5, # deformation
+            222: 6, 220: 6, # persistent
             231: 7, 232: 7, 233: 7, 230: 7,  # enlargement - (added 230 = if patch becomes too large for window)
-            311: 8, 312: 8, 313: 8, #310: 8,  # dissection
+            311: 8, 312: 8, 313: 8,  # dissection
             321: 9, 322: 9, 323: 9,  # frag per se
             331: 10, 332: 10, 333: 10  # creation
             }
@@ -372,7 +354,7 @@ if __name__ == "__main__":
     # # print(f"Remap completed in {rmp_duration:.2f} seconds") # just prints seconds
     # print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
     
-    ## Combine Rasters
+    ## Combine Rasters- Time Interval
     # print("Starting combining process...")
     # c_start = time.time()
     # c_results = combine_by_year(
@@ -381,6 +363,16 @@ if __name__ == "__main__":
     # )
     # c_duration = time.time() - c_start
     # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
+    
+    ## Combine Rasters- Time Series
+    # print("Starting combining process...")
+    # c2_start = time.time()
+    # c2_results = combine_TS(
+    #     input_dir= combine_input,
+    #     output_dir= combine_output
+    # )
+    # c2_duration = time.time() - c2_start
+    # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c2_duration // 60, c2_duration % 60))
     
     ## Reclassify Combined Raster and Add Typology Names
     print("Starting reclassification process...")
@@ -394,3 +386,70 @@ if __name__ == "__main__":
     
     
     ## add an excel export of attribute tables 
+    
+    
+    
+    
+    
+    
+    
+    
+    ### NOTES ###
+    # This is the original combine which only calculates values when they over lap (100 + 20 + 2 = 122, NOT 100 + 20 + 0 = 0)
+# def combine_by_year(input_dir, output_dir):
+#     """Automatically combine edge, area, and patch rasters by year."""
+#     edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
+    
+#     for edge_file in edge_files:
+#         year = get_year(edge_file)
+#         area_file = f"{year}_area_rmp.tif"
+#         patch_file = f"{year}_pn_rmp.tif"
+        
+#         edge_path = os.path.join(input_dir, edge_file)
+#         area_path = os.path.join(input_dir, area_file)
+#         patch_path = os.path.join(input_dir, patch_file)
+        
+#         if os.path.exists(area_path) and os.path.exists(patch_path):
+#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
+#             try:
+#                 combined = arcpy.sa.Raster(edge_path) + arcpy.sa.Raster(area_path) + arcpy.sa.Raster(patch_path)
+#                 combined.save(output_path)
+#                 arcpy.management.BuildRasterAttributeTable(output_path)
+#                 print(f"Combined raster created: {output_path}")
+#             except Exception as e:
+#                 print(f"Combine error: {str(e)}")
+
+# def combine_by_year(input_dir, output_dir):
+#     try:
+#         # Get edge files and find corresponding area/patch files
+#         edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
+        
+#         for edge_file in edge_files:
+#             year = get_year(edge_file)
+#             area_file = f"{year}_area_rmp.tif"
+#             pn_file = f"{year}_pn_rmp.tif"
+            
+#             # File paths
+#             edge_path = os.path.join(input_dir, edge_file)
+#             area_path = os.path.join(input_dir, area_file)
+#             pn_path = os.path.join(input_dir, pn_file)
+#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
+            
+#             # Use Raster Calculator to combine
+#             # expression = f'"{patch_path}" + "{area_path}" + "{edge_path}"'
+#             # arcpy.gp.RasterCalculator_sa(expression, output_path)
+#             print(f"Combined raster saved: {output_path}")
+            
+#         return True
+#     except Exception as e:
+#         print(f"Combine error: {str(e)}")
+        
+#         if os.path.exists(area_path) and os.path.exists(patch_path):
+#             output_path = os.path.join(output_dir, f"{year}_combined.tif")
+#             try:
+#                 combined = arcpy.sa.Raster(edge_path) + arcpy.sa.Raster(area_path) + arcpy.sa.Raster(patch_path)
+#                 combined.save(output_path)
+#                 arcpy.management.BuildRasterAttributeTable(output_path)
+#                 print(f"Combined raster created: {output_path}")
+#             except Exception as e:
+#                 print(f"Combine error: {str(e)}")

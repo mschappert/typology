@@ -10,3 +10,5 @@ docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis
 #desktop
 cd /mnt/e/typology/basegis/
 docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis
+
+docker push mschappert/basegis:latest
