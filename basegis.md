@@ -11,4 +11,7 @@ docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis
 cd /mnt/e/typology/basegis/
 docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis
 
+
+#update docker iamge and push to docker hub
+docker build -t basegis .
 docker push mschappert/basegis:latest

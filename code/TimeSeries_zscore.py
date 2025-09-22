@@ -14,9 +14,12 @@ arcpy.env.pyramid = "NONE"
 
 #########################################
 # Parameters
-input_dir = r"D:\typology\data\trend\area_rg_MK_tau.tif"
-output_dir = r"D:\typology\data\TS_zscore"
-mask = r"D:\typology\data\TS_mask\area_mask.tif"
+#input_dir = r"D:\typology\data\trend\area_rg_MK_tau.tif"
+input_dir = r"D:\typology\data\4_TS_and_TI\TS\area_raster_group_MK_tau.tif"
+#output_dir = r"D:\typology\data\TS_zscore"
+output_dir = r"D:\typology\data\4_TS_and_TI\TS_zscore"
+#mask = r"D:\typology\data\TS_mask\area_mask.tif"
+mask = r"D:\typology\data\4_TS_and_TI\TS_mask\area_mask.tif"
 metric = "area" # edge, area, or pn 
 
 #########################################

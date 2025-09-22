@@ -11,9 +11,9 @@ arcpy.env.overwriteOutput = True
 
 
 # Fix your paths here (remove asterisks and escape properly)
-folder_path = r"D:\typology\data\mw_pn"
-output_folder = r"D:\typology\data\TS_mask"
-metric = "pn"  # or "edge", "pn"
+folder_path = r"D:\typology\data\3_MovingWindow\mw_edge"
+output_folder = r"D:\typology\data\4_TS_and_TI\TS_mask"
+metric = "edge"  # "area" or "edge", "pn"
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
