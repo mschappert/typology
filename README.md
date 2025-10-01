@@ -162,7 +162,7 @@ docker images
 ```
 cd /mnt/c/Users/username/wherever_repository_is/basegis/
 
-docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/data/ -it basegis 
+docker run -p 8888:8888 -p 8787:8787 -v $(pwd):/home/gisuser/code/ -it basegis 
 
 ```
 4. Copy and paste link in browser. If using VS Code see next section for instructions
