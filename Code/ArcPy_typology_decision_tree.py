@@ -14,30 +14,39 @@ import time
 # output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\5_Typology\remap_timeseries"
 # metric_type = "edge" # "edge "or "area", "pn"
 
-input_raster = r"D:\Typology\data\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
-output_dir = r"D:\typology\data\5_Typology\remap_timeseries"
-metric_type = "edge" # "edge "or "area", "pn"
+# input_raster = r"D:\Typology\data\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
+# output_dir = r"D:\typology\data\5_Typology\remap_timeseries"
+# metric_type = "edge" # "edge "or "area", "pn"
 
 # Remap - Interval
 # input_raster = r"D:\typology\data\4_TS_and_TI\img_diff\pn\*.tif" # change folder for each metric type
-# output_dir = r"D:\typology\data\5_Typology\remap_interval" #"E:\GWB_Working\remap"
-# metric_type = "pn" # "edge", "area", or "pn"
+# output_dir = r"D:\typology\data\5_Typology\remap_interval" 
+metric_type = "pn"#edge", "area", or "pn"
+
+input_raster = r"D:\typology\data\4_TS_and_TI\1990_2020\img_diff\pn\*.tif"
+output_dir = r"D:\typology\data\4_TS_and_TI\1990_2020\remap_interval"
 
 # Combine Rasters - Time Interval or Time Series
 # all rasters should be in the same folder- it searches by file name to combine by year
-combine_input = r"D:\typology\data\5_Typology\remap_timeseries" #interval" #timeseries"
-combine_output = r"D:\typology\data\5_Typology\combined_timeseries" #interval" #timeseries"
+# combine_input = r"D:\typology\data\5_Typology\remap_timeseries" #interval" #timeseries"
+# combine_output = r"D:\typology\data\5_Typology\combined_timeseries" #interval" #timeseries"
+
+combine_input = r"D:\typology\data\4_TS_and_TI\1990_2020\remap_interval"
+combine_output = r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval"
 
 # Reclassify and Add Typology Names - Time Interval or Time Series
-rc_input = r"D:\typology\data\5_Typology\combined_timeseries" #interval"#r"E:\GWB_Working\combined_output"
-rc_output = r"D:\typology\data\5_Typology\combined_rc_timeseries" #interval"#r"E:\GWB_Working\typology_output"
+# rc_input = r"D:\typology\data\5_Typology\combined_timeseries" #interval OR timeseries
+# rc_output = r"D:\typology\data\5_Typology\combined_rc_timeseries" #interval OR timeseries
+
+rc_input = r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval"
+rc_output = r"D:\typology\data\4_TS_and_TI\1990_2020\combined_rc_interval"
 
 ### Functions ###
 def get_year(filename):
     # Extract year range pattern like "90-95" from filename (eg. 90-95_area) using regex
     match = re.search(r"(\d{2}-\d{2})", filename)
     return match.group(1) if match else ""
-    
+
 def remap_time_series(input_dir, output_dir, metric):
     """
     Remap raster values based on the specified metric (patch, area, edge).
@@ -182,8 +191,9 @@ def remap_time_interval(input_dir, output_dir, metric):
 # takes all posibilties and adds them together (100 + 20 + 2 = 122, AND 100 + 20 + 0 = 0)      
 def combine_by_year(input_dir, output_dir):
     """Automatically combine edge, area, and patch rasters by year."""
-    edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
-    
+   #edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]
+    edge_files = [f for f in os.listdir(input_dir) if 'edge' in f and f.endswith('.tif')]
+
     for edge_file in edge_files:
         year = get_year(edge_file)
         area_file = f"{year}_area_rmp.tif"
@@ -213,28 +223,102 @@ def combine_by_year(input_dir, output_dir):
                 print(f"Combine error: {str(e)}")
 
 # combine TS output which has only one edge, area, and pn raster in the folder              
+# def combine_TS(input_dir, output_dir):
+#     """Combine edge, area, and pn rasters."""
+#     edge_files = [f for f in os.listdir(input_dir) if 'edge' in f and f.endswith('.tif')]
+#     area_files = [f for f in os.listdir(input_dir) if 'area' in f and f.endswith('.tif')]
+#     pn_files = [f for f in os.listdir(input_dir) if 'pn' in f and f.endswith('.tif')]
+    
+#     if edge_files and area_files and pn_files:
+#         try:
+#             edge_r = arcpy.sa.Raster(os.path.join(input_dir, edge_files[0]))
+#             area_r = arcpy.sa.Raster(os.path.join(input_dir, area_files[0]))
+#             pn_r = arcpy.sa.Raster(os.path.join(input_dir, pn_files[0]))
+            
+#             combined = arcpy.sa.Con(arcpy.sa.IsNull(edge_r), 0, edge_r) + \
+#                       arcpy.sa.Con(arcpy.sa.IsNull(area_r), 0, area_r) + \
+#                       arcpy.sa.Con(arcpy.sa.IsNull(pn_r), 0, pn_r)
+            
+#             output_path = os.path.join(output_dir, "combined.tif")
+#             combined.save(output_path)
+#             arcpy.management.BuildRasterAttributeTable(output_path)
+#             print(f"Combined raster created: {output_path}")
+#         except Exception as e:
+#             print(f"Combine error: {str(e)}")
+#             return False
+
+# def combine_TS(input_dir, output_dir):
+#     """Combine edge, area, and pn rasters."""
+#     print(f"Checking directory: {input_dir}")
+#     print(f"Directory exists: {os.path.exists(input_dir)}")
+    
+#     all_files = os.listdir(input_dir)
+#     print(f"All files: {all_files}")
+    
+#     edge_files = [f for f in os.listdir(input_dir) if 'edge' in f and f.endswith('.tif')]
+#     area_files = [f for f in os.listdir(input_dir) if 'area' in f and f.endswith('.tif')]
+#     pn_files = [f for f in os.listdir(input_dir) if 'pn' in f and f.endswith('.tif')]
+    
+#     print(f"Edge files: {edge_files}")
+#     print(f"Area files: {area_files}")
+#     print(f"PN files: {pn_files}")
+    
+#     if edge_files and area_files and pn_files:
+#         print("All files found, processing...")
+#         # rest of your code
+#     else:
+#         print("NOT all file types found - exiting early")
+#         return False
+
 def combine_TS(input_dir, output_dir):
     """Combine edge, area, and pn rasters."""
+    print(f"Checking directory: {input_dir}")
+    print(f"Directory exists: {os.path.exists(input_dir)}")
+    
+    all_files = os.listdir(input_dir)
+    print(f"All files: {all_files}")
+    
     edge_files = [f for f in os.listdir(input_dir) if 'edge' in f and f.endswith('.tif')]
     area_files = [f for f in os.listdir(input_dir) if 'area' in f and f.endswith('.tif')]
     pn_files = [f for f in os.listdir(input_dir) if 'pn' in f and f.endswith('.tif')]
     
+    print(f"Edge files: {edge_files}")
+    print(f"Area files: {area_files}")
+    print(f"PN files: {pn_files}")
+    
     if edge_files and area_files and pn_files:
+        print("All files found, processing...")
         try:
+            print("Loading rasters...")
             edge_r = arcpy.sa.Raster(os.path.join(input_dir, edge_files[0]))
+            print("Edge raster loaded")
             area_r = arcpy.sa.Raster(os.path.join(input_dir, area_files[0]))
+            print("Area raster loaded")
             pn_r = arcpy.sa.Raster(os.path.join(input_dir, pn_files[0]))
+            print("PN raster loaded")
             
+            print("Combining rasters...")
             combined = arcpy.sa.Con(arcpy.sa.IsNull(edge_r), 0, edge_r) + \
                       arcpy.sa.Con(arcpy.sa.IsNull(area_r), 0, area_r) + \
                       arcpy.sa.Con(arcpy.sa.IsNull(pn_r), 0, pn_r)
+            print("Rasters combined")
             
             output_path = os.path.join(output_dir, "combined.tif")
+            print(f"Saving to: {output_path}")
             combined.save(output_path)
+            print("Raster saved")
+            
             arcpy.management.BuildRasterAttributeTable(output_path)
             print(f"Combined raster created: {output_path}")
+            return True
         except Exception as e:
             print(f"Combine error: {str(e)}")
+            return False
+    else:
+        print("NOT all file types found - exiting early")
+        return False
+
+
                 
 # Reclassify combined raster values to typology categories and add attribute table labels
 def reclassify_typology(input_dir, output_dir):
@@ -312,35 +396,48 @@ def reclassify_typology(input_dir, output_dir):
             print(f"Typology reclassification error for {combined_file}: {str(e)}")
 
 
-### Main Execution ###
+### Main Execution ### TIME SERIES
+# if __name__ == "__main__":
+#     print("Starting Processing")
+    
+#     # Remap Raster - Time Series
+#     print("Starting remapping process...")
+#     rmp_start = time.time()
+#     rmp_results = remap_time_series(
+#         input_dir=input_raster,
+#         output_dir=output_dir,
+#         metric=metric_type
+#     )
+#     rmp_duration = time.time() - rmp_start
+#     print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
+    
+#     # Combine Rasters- Time Series
+#     print("Starting combining process...")
+#     c2_start = time.time()
+#     c2_results = combine_TS(
+#         input_dir= combine_input,
+#         output_dir= combine_output
+#     )
+#     c2_duration = time.time() - c2_start
+#     print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c2_duration // 60, c2_duration % 60))
+    
+#     # Reclassify Combined Raster and Add Typology Names
+#     print("Starting reclassification process...")
+#     rc_start = time.time()
+#     reclassify_typology(
+#         input_dir= rc_input,
+#         output_dir= rc_output
+#     )
+#     rc_duration = time.time() - rc_start
+#     print("Reclassification completed in {:.0f} mins. {:.2f} sec.".format(rc_duration // 60, rc_duration % 60))
+    
+    
+    ## add an excel export of attribute tables 
+    
+
+### Main Execution ### TIME INTERVAL
 if __name__ == "__main__":
     print("Starting Processing")
-    
-    # Debug: Check paths
-    # print(f"Input raster: {input_raster}")
-    # print(f"Input exists: {os.path.exists(input_raster)}")
-    # print(f"Output dir: {output_dir}")
-    # print(f"Output dir exists: {os.path.exists(output_dir)}")
-    
-    # Debug: Check ArcPy
-    # try:
-    #     print(f"ArcPy version: {arcpy.GetInstallInfo()['Version']}")
-    #     arcpy.CheckOutExtension("Spatial")
-    #     print("Spatial Analyst license checked out")
-    # except Exception as e:
-    #     print(f"ArcPy setup error: {e}")
-    #     sys.exit(1)
-    
-    ## Remap Raster - Time Series
-    # print("Starting remapping process...")
-    # rmp_start = time.time()
-    # rmp_results = remap_time_series(
-    #     input_dir=input_raster,
-    #     output_dir=output_dir,
-    #     metric=metric_type
-    # )
-    # rmp_duration = time.time() - rmp_start
-    # print("Remap completed in {:.0f} mins. {:.2f} sec.".format(rmp_duration // 60, rmp_duration % 60))
 
     ## Remap Raster - Time Interval
     # print("Starting remapping process...")
@@ -364,16 +461,6 @@ if __name__ == "__main__":
     # c_duration = time.time() - c_start
     # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
     
-    ## Combine Rasters- Time Series
-    # print("Starting combining process...")
-    # c2_start = time.time()
-    # c2_results = combine_TS(
-    #     input_dir= combine_input,
-    #     output_dir= combine_output
-    # )
-    # c2_duration = time.time() - c2_start
-    # print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c2_duration // 60, c2_duration % 60))
-    
     ## Reclassify Combined Raster and Add Typology Names
     print("Starting reclassification process...")
     rc_start = time.time()
@@ -385,17 +472,30 @@ if __name__ == "__main__":
     print("Reclassification completed in {:.0f} mins. {:.2f} sec.".format(rc_duration // 60, rc_duration % 60))
     
     
-    ## add an excel export of attribute tables 
-    
-    
-    
     
     
     
     
     
     ### NOTES ###
-    # This is the original combine which only calculates values when they over lap (100 + 20 + 2 = 122, NOT 100 + 20 + 0 = 0)
+    
+    # Debug: Check paths
+    # print(f"Input raster: {input_raster}")
+    # print(f"Input exists: {os.path.exists(input_raster)}")
+    # print(f"Output dir: {output_dir}")
+    # print(f"Output dir exists: {os.path.exists(output_dir)}")
+    
+    # Debug: Check ArcPy
+    # try:
+    #     print(f"ArcPy version: {arcpy.GetInstallInfo()['Version']}")
+    #     arcpy.CheckOutExtension("Spatial")
+    #     print("Spatial Analyst license checked out")
+    # except Exception as e:
+    #     print(f"ArcPy setup error: {e}")
+    #     sys.exit(1)
+    
+    
+# This is the original combine which only calculates values when they over lap (100 + 20 + 2 = 122, NOT 100 + 20 + 0 = 0)
 # def combine_by_year(input_dir, output_dir):
 #     """Automatically combine edge, area, and patch rasters by year."""
 #     edge_files = [f for f in os.listdir(input_dir) if f.endswith('_edge_rmp.tif')]

@@ -1,19 +1,20 @@
 import arcpy
 import os
 
-years = [1990, 1995, 2000, 2005, 2010, 2015, 2020]
+#years = [1990, 1995, 2000, 2005, 2010, 2015, 2020]
+years = [1990, 2020]
 
-metric = "edge" 
-base_dir = "D:/typology/data/3_MovingWindow/mw_edge"#"B:/Mikayla/DATA/Projects/AF/Typology_collection9/3_MovingWindow/mw_edge" #"D:/typology/data/mw_area"
-output_dir = "D:/typology/data/4_TS_and_TI/img_diff"#"B:/Mikayla/DATA/Projects/AF/Typology_collection9/4_TS_and_TI/img_diff" #"D:/typology/data/img_diff/area"
+metric = "area" 
+base_dir = "D:/typology/data/3_MovingWindow/mw_area"
+output_dir = "D:/typology/data/4_TS_and_TI/img_diff/area"
 
 # metric = "edge" 
-# base_dir = "D:/typology/data/mw_edge"
-# output_dir = "D:/typology/data/img_diff/edge"
+# base_dir = "D:/typology/data/3_MovingWindow/mw_edge"
+# output_dir = "D:/typology/data/4_TS_and_TI/img_diff/edge"
 
 # metric = "pn" 
-# base_dir = "D:/typology/data/mw_pn"
-# output_dir = "D:/typology/data/img_diff/pn"
+# base_dir = "D:/typology/data/3_MovingWindow/mw_pn"
+# output_dir = "D:/typology/data/4_TS_and_TI/img_diff/pn"
 
 
 def raster_difference_zero_bg_to_nodata(earlier, later, output, metric):
