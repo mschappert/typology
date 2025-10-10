@@ -186,7 +186,7 @@ def rc_rasters(input_raster, rc_type=rc_type):
             #                              [103, 1]])
             out_raster = arcpy.sa.Con(
                 (arcpy.sa.Raster(input_raster) == 3) | # edge
-                (arcpy.sa.Raster(input_raster) == 103) | #edge
+                (arcpy.sa.Raster(input_raster) == 103) | # edge
                 (arcpy.sa.Raster(input_raster) == 105), 1, 0) #perforation
         elif rc_type == "area":
             output_path = os.path.join(area_rc_out, f"{year}_rc_area.tif")
