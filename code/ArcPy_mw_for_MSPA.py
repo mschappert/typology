@@ -71,11 +71,8 @@ rc_rg_in = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg" # Input directory for reclass 
 rc_rg_out = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg_rc" # Output directory for reclass region group
 
 # Moving window
-edge_mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge" # Input folder for data that will be used for edge moving window
-area_mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_area" # Input folder for data that will be used for area moving window
-pn_mw_in = r"D:\NEW_WORKING\rg_rc" # Input folder for data that will be used for patch number moving window
-mw_out = r"E:\typology\data\3_MovingWindow\mw_results"#r"D:\NEW_WORKING\mw_results" # Output folder to hold moving window results
-mw_type = "edge"  # Select type: either "edge", "area", or "pn"
+mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge" # Input folder for moving window
+mw_out = r"E:\typology\data\3_MovingWindow\mw_results" # Output folder to hold moving window results
 mw_radius = 1000
 stat = "SUM"  # Select statistics type: "VARIETY", or "SUM"
 
