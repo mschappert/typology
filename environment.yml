@@ -29,5 +29,3 @@ dependencies:
   # Machine Learning/Computing
   - scikit-learn       # machine learning and clustering
   - scipy=1.14.1       # scientific computing library
-  # Jupyter environment
-  - jupyterlab=4.4.10   # notebook environment & interface
