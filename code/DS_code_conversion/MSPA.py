@@ -2,6 +2,7 @@ import os
 import subprocess
 
 # wsl terminal
+# cd ~
 #wsl
 #GWB_MSPA
 
@@ -9,15 +10,18 @@ import subprocess
 # cd D:\typology\code\DS_code_conversion
 # python MSPA.py
 
+# N O T E:
 # if first time using type "yes" to accept the GWB license agreement
+# make sure that the output folder does not contain any log files from previous runs, it will fail to run
 
-# Folders
-input_dir = "D:/typology/data/DS_TEST/mosaic_P_recoded"
-output_dir = "D:/typology/data/DS_TEST/MSPA"
+# Folders - use absolute paths
+input_dir = r"D:\typology\data\DS_TEST\mosaic_P_recoded"
+output_dir = r"D:\typology\data\DS_TEST\MSPA"
 os.makedirs(output_dir, exist_ok=True)
 
 # MSPA parameters
-params = """8
+# connectivity (8), edge- default (1), transition- off (0), intext = on (1), write to disk with swap (1), statistics- off (0)
+params = """8 
 1
 0
 1
