@@ -2822,3 +2822,5 @@ data/5_Typology/combined_rc_interval/95-00_combined_rc.tif.vat.dbf.FRMK-GOLDIE-J
 data/5_Typology/combined_rc_timeseries/combined_rc.tif.vat.dbf.FRMK-GOLDIE-JR2.11836.21540.sr.lock
 data/5_Typology/combined_rc_timeseries/combined_rc.tif.vat.dbf.FRMK-GOLDIE-JR2.17132.22996.sr.lock
 outputs/~$supplemental_tables.xlsx
+outputs/TS_graph_v3_percent_cover.png
+outputs/typology.xlsx
