@@ -5,8 +5,8 @@ COPY environment.yml .
 RUN conda env create -f environment.yml
 
 # Activate the Conda environment
-RUN echo "conda activate base_gis" >> ~/.bashrc
-ENV PATH="$PATH:/opt/conda/envs/base_gis/bin"
+RUN echo "conda activate typology_env" >> ~/.bashrc
+ENV PATH="$PATH:/opt/conda/envs/typology_env/bin"
 
 # Create a non-root user and switch to that user
 RUN useradd -m gisuser

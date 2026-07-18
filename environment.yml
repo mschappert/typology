@@ -1,4 +1,4 @@
-name: base_gis
+name: typology_env
 channels:
   - conda-forge
 dependencies:
