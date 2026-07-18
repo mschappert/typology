@@ -8,24 +8,21 @@ dependencies:
   - distributed=2025.11.0  # parallelization scheduler
   - dask-labextension  # Dask for JupyterLab
   - dask-geopandas=0.4.2  # parallelization for GeoPandas
-  # Cloud
-  - boto3              # AWS cloud interaction #=1.35.54
-  - planetary-computer=1.0.0  # Azure planetary data client
-  - pystac-client=0.7.5  # STAC API client for Earth observation data
-  # Data Management & formats 
-  - pooch=1.8.2        # data file download manager
-  - openpyxl           # Excel file reading/writing
-  - netcdf4=1.7.2      # netCDF file support
+  # Data Management & formats
+  - numpy              # numerical arrays
+  - pandas             # tabular data
+  - xarray             # labeled multi-dimensional arrays
+  - rioxarray=0.20     # rasterio + xarray integration
+  - rasterio           # raster I/O
   - stackstac=0.5.0    # cloud-optimized GeoTIFF stack processing
-  - rioxarray=0.20
   - gdal               # raster/vector geospatial data handling
-  # Plotting and mapping
-  - cartopy            # mapping and geospatial visualization
-  - leafmap=0.38.5     # interactive mapping with Jupyter
-  - matplotlib         # plotting
-  # Vector & Raster
-  - shapely=2.0.5      # geometric operations on vector data
+  # Geospatial
   - geopandas=1.0.1    # vector data operations
+  - shapely=2.0.5      # geometric operations on vector data
+  - pyproj             # coordinate reference system transformations
+  - affine             # affine transforms for rasters
   # Machine Learning/Computing
   - scikit-learn       # machine learning and clustering
   - scipy=1.14.1       # scientific computing library
+  # Plotting
+  - matplotlib         # plotting
