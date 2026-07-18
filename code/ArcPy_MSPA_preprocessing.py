@@ -71,6 +71,91 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
     success_count = sum(1 for p in outputs if p)
     print(f"Process complete: {success_count}/{len(rasters)} succeeded")
     return outputs
+
+############################################################
+
+rc_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\"
+rc_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\"
+
+def reclassify_binary2(input_raster, output_dir=None):
+    """
+    Reclassify raster values with South America Albers projection: 0 to 1, 1 to 2, and NoData to 1
+    
+    Args:
+        input_raster: Path to input raster
+        output_dir: Directory for output raster (if None, uses same directory as input)
+        
+    Returns:
+        Path to output raster if successful, None otherwise
+    """
+    try:
+        # Set up output path
+        if output_dir is None:
+            output_dir = os.path.dirname(input_raster)
+        
+        base_name = os.path.basename(input_raster)
+        output_name = f"{os.path.splitext(base_name)[0]}_rc.tif"
+        output_raster = os.path.join(output_dir, output_name)
+        
+        # Remove output file if it already exists
+        if arcpy.Exists(output_raster):
+            arcpy.management.Delete(output_raster)
+            print(f"Removed existing file: {output_raster}")
+        
+        # Use South America Albers projection and custom scratch workspace
+        sa_albers = 'PROJCS["South_America_Albers_Equal_Area_Conic",GEOGCS["GCS_South_American_1969",DATUM["D_South_American_1969",SPHEROID["GRS_1967_Truncated",6378160.0,298.25]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Albers"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-60.0],PARAMETER["Standard_Parallel_1",-5.0],PARAMETER["Standard_Parallel_2",-42.0],PARAMETER["Latitude_Of_Origin",-32.0],UNIT["Meter",1.0]]'
+        
+        print(f"Reclassifying {base_name} with South America Albers projection...")
+        
+        # Use EnvManager with South America Albers projection and parallel processing
+        with arcpy.EnvManager(outputCoordinateSystem=sa_albers, 
+                             parallelProcessingFactor="80%", 
+                             scratchWorkspace=output_dir):
+            
+            out_raster = arcpy.sa.Reclassify(
+                in_raster=input_raster,
+                reclass_field="Value",
+                remap="0 1;1 2;NODATA 1",
+                missing_values="DATA"
+            )
+            
+            # Save directly to output path
+            out_raster.save(output_raster)
+        
+        print(f"Successfully reclassified: {output_raster}")
+        return output_raster
+    
+    except Exception as e:
+        print(f"Error reclassifying {input_raster}: {str(e)}")
+        return None
+
+    
+if __name__ == "__main__":
+    start_time = time.time()
+ 
+    ## Step 1: Reproject rasters to Albers
+    print("\n=== STEP 1: REPROJECTING RASTERS ===")
+    reprojected = process_rasters(
+        reproject_to_albers, 
+        rpj_in,
+        use_multiprocessing=True,  # Use multiprocessing for reprojection
+        output_dir=rpj_out
+    )
+    
+    ## Step 2: Reclassify the reprojected rasters
+    print("\n=== STEP 2: RECLASSIFYING RASTERS ===")
+    reclassed = process_rasters(
+        reclassify_binary2, 
+        rc_in,  # can be rpj_out 
+        use_multiprocessing=True,  # Let ArcPy handle parallelism for reclassification
+        output_dir=rc_out
+    )
+    
+    # Report total execution time
+    elapsed_time = time.time() - start_time
+    minutes, seconds = divmod(elapsed_time, 60)
+    print(f"\nTotal execution time: {int(minutes)} minutes {seconds:.2f} seconds")
+    
     
 #########################################   
 # rpj_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\preprocess_test"
@@ -197,85 +282,3 @@ def process_rasters(process_func, input_dir, use_multiprocessing=False, **kwargs
 # missing_values="DATA"
 # )
 # out_raster.save(r"Z:\scho\Eddie_Storage\Mikaya\Data\GWB_Preprosseing\Mosaic_p_rc\mosaic_1995_P_rc.tif")
-
-rc_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\"
-rc_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\"
-
-def reclassify_binary2(input_raster, output_dir=None):
-    """
-    Reclassify raster values with South America Albers projection: 0 to 1, 1 to 2, and NoData to 1
-    
-    Args:
-        input_raster: Path to input raster
-        output_dir: Directory for output raster (if None, uses same directory as input)
-        
-    Returns:
-        Path to output raster if successful, None otherwise
-    """
-    try:
-        # Set up output path
-        if output_dir is None:
-            output_dir = os.path.dirname(input_raster)
-        
-        base_name = os.path.basename(input_raster)
-        output_name = f"{os.path.splitext(base_name)[0]}_rc.tif"
-        output_raster = os.path.join(output_dir, output_name)
-        
-        # Remove output file if it already exists
-        if arcpy.Exists(output_raster):
-            arcpy.management.Delete(output_raster)
-            print(f"Removed existing file: {output_raster}")
-        
-        # Use South America Albers projection and custom scratch workspace
-        sa_albers = 'PROJCS["South_America_Albers_Equal_Area_Conic",GEOGCS["GCS_South_American_1969",DATUM["D_South_American_1969",SPHEROID["GRS_1967_Truncated",6378160.0,298.25]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Albers"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-60.0],PARAMETER["Standard_Parallel_1",-5.0],PARAMETER["Standard_Parallel_2",-42.0],PARAMETER["Latitude_Of_Origin",-32.0],UNIT["Meter",1.0]]'
-        
-        print(f"Reclassifying {base_name} with South America Albers projection...")
-        
-        # Use EnvManager with South America Albers projection and parallel processing
-        with arcpy.EnvManager(outputCoordinateSystem=sa_albers, 
-                             parallelProcessingFactor="80%", 
-                             scratchWorkspace=output_dir):
-            
-            out_raster = arcpy.sa.Reclassify(
-                in_raster=input_raster,
-                reclass_field="Value",
-                remap="0 1;1 2;NODATA 1",
-                missing_values="DATA"
-            )
-            
-            # Save directly to output path
-            out_raster.save(output_raster)
-        
-        print(f"Successfully reclassified: {output_raster}")
-        return output_raster
-    
-    except Exception as e:
-        print(f"Error reclassifying {input_raster}: {str(e)}")
-        return None
-
-    
-if __name__ == "__main__":
-    start_time = time.time()
- 
-    # Step 1: Reproject rasters to Albers
-    # print("\n=== STEP 1: REPROJECTING RASTERS ===")
-    # reprojected = process_rasters(
-    #     reproject_to_albers, 
-    #     rpj_in,
-    #     use_multiprocessing=True,  # Use multiprocessing for reprojection
-    #     output_dir=rpj_out
-    # )
-    
-    ## Step 2: Reclassify the reprojected rasters
-    print("\n=== STEP 2: RECLASSIFYING RASTERS ===")
-    reclassed = process_rasters(
-        reclassify_binary2, 
-        rc_in,  # can be rpj_out 
-        use_multiprocessing=True,  # Let ArcPy handle parallelism for reclassification
-        output_dir=rc_out
-    )
-    
-    # Report total execution time
-    elapsed_time = time.time() - start_time
-    minutes, seconds = divmod(elapsed_time, 60)
-    print(f"\nTotal execution time: {int(minutes)} minutes {seconds:.2f} seconds")
