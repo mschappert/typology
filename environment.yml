@@ -26,5 +26,3 @@ dependencies:
   - scipy=1.14.1       # scientific computing library
   # Plotting
   - matplotlib         # plotting
-
-# -kiro
