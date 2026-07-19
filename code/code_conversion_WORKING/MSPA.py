@@ -1,3 +1,33 @@
+# How to Run MSPA.py
+# Overview
+# MSPA.py runs GWB_MSPA (GuidosToolbox Workbench - Morphological Spatial Pattern Analysis) via WSL. It takes preprocessed binary rasters and classifies foreground pixels into spatial pattern categories (core, edge, bridge, loop, branch, islet, perforation).
+
+# This script runs outside the Docker container, directly on Windows with WSL.
+
+# Prerequisites
+# Windows with WSL — wsl command must be accessible from PowerShell
+# GWB installed in WSL — GWB_MSPA must be on the WSL PATH. On first use, type yes to accept the license.
+# Preprocessed input rasters — 8-bit GeoTIFFs with foreground=2, background=1, nodata=0. Use MSPA_preprocessing.ipynb (in Docker) to prepare these.
+# Python 3 on Windows — only uses os and subprocess (standard library)
+# Workflow
+# MSPA_preprocessing.ipynb (Docker) → MSPA.py (Windows/WSL)
+# Setup
+# Edit paths in MSPA.py:
+
+# input_dir = r"D:\typology\data\DS_TEST\mosaic_P_recoded"
+# output_dir = r"D:\typology\data\DS_TEST\MSPA"
+# Run from PowerShell
+# cd D:\typology\code\DS_code_conversion
+# python MSPA.py
+# Important Notes
+# Clear the output folder before each run — leftover log files will cause failure
+# First-time use: type yes for the GWB license
+# Input must be strictly 8-bit with values 1 (background) and 2 (foreground)
+# The script auto-converts Windows paths to WSL paths
+
+
+
+
 import os
 import subprocess
 
