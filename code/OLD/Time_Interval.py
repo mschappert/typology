@@ -1,12 +1,10 @@
-import arcpy
-import os
-
-#years = [1990, 1995, 2000, 2005, 2010, 2015, 2020]
-years = [1990, 2020]
+############## Orig- working, just optimized it for better use cases - changes made in 3.2.a_time_interval.py 7/19
+# Example: years = [1990, 1995, 2000, 2005, 2010, 2015, 2020] or [1990, 2020]
+years = [2020, 2024]
 
 metric = "area" 
-base_dir = "D:/typology/data/3_MovingWindow/mw_area"
-output_dir = "D:/typology/data/4_TS_and_TI/img_diff/area"
+base_dir = r"D:\Mikayla\site_selection\3_MW\mw_area" #"D:/typology/data/3_MovingWindow/mw_area"
+output_dir = r"D:\Mikayla\site_selection\4_TS_and_TI\img_diff\area" #"D:/typology/data/4_TS_and_TI/img_diff/area"
 
 # metric = "edge" 
 # base_dir = "D:/typology/data/3_MovingWindow/mw_edge"

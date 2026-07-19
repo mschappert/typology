@@ -47,6 +47,15 @@ arcpy.env.pyramid = "NONE"
 ##########
 # Parameters
 
+################################################## NEED TO INTEGRATE INTO THE CODE BELOW- 7/19- need to come back to this
+# #Parameter 
+# main_workspace = r"D:\Mikayla\site_selection" # main workspace for the project
+# # in the code chunks below
+# # Create 4_TS_TI/img_diff/metric folder
+# output_dir = os.path.join(main_workspace, "4_TS_TI", "img_diff", metric)
+# os.makedirs(output_dir, exist_ok=True)
+##################################################
+
 # Clip - This step is not necessary - only if needed 
 # clip_in = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_in" # Input directory with rasters to clip
 # clip_mask = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\binary_mask\binary_mask_shrink40.tif" # Mask raster for clipping
@@ -324,9 +333,9 @@ def moving_window(input_raster, type=mw_type, radius=mw_radius, stat=stat): #out
         basename = os.path.basename(input_raster)
         year = get_year(basename)
 
-        # Create 3_MW folder one level up from rc_in
+        # Create 3_MovingWindow folder one level up from rc_in
         parent_dir = os.path.dirname(rc_in)
-        mw_base = os.path.join(parent_dir, "3_MW")
+        mw_base = os.path.join(parent_dir, "3_MovingWindow")
 
         # Create subfolder dynamically based on type
         output_dir = os.path.join(mw_base, f"mw_{type}")
