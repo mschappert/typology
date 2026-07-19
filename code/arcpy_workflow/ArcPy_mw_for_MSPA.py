@@ -53,28 +53,32 @@ arcpy.env.pyramid = "NONE"
 # clip_out = r"S:\Mikayla\DATA\Projects\AF\NEW_WORKING\clip_out"       
 
 # Reclassification
-rc_in = r"S:\Mikayla\DATA\Projects\AF\Typology_collection9\2_MSPA\MSPA_renamed"#r"D:\NEW_WORKING\MSPA_results_P" # Input directory with rasters to reclassify
-edge_rc_out = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge"#r"D:\NEW_WORKING\MSPA_rc_edge" # Output directory for edge reclassification
-area_rc_out = r"E:\typology\data\3_MovingWindow\MSPA_rc_area"#r"D:\NEW_WORKING\MSPA_rc_area" # Output directory for area reclassification
+rc_in = r"D:\Mikayla\site_selection\2_MSPA"#"S:\Mikayla\DATA\Projects\AF\Typology_collection9\2_MSPA\MSPA_renamed"#r"D:\NEW_WORKING\MSPA_results_P" # Input directory with rasters to reclassify
+#edge_rc_out = r"Z:\scho\Eddie_Storage\Mikaya\usb_backup\chap3\site_selection\3_MW\MSPA_rc_edge"#r"E:\typology\data\3_MovingWindow\MSPA_rc_edge"#r"D:\NEW_WORKING\MSPA_rc_edge" # Output directory for edge reclassification
+area_rc_out = r"D:\Mikayla\site_selection\2_MSPA\MSPA_rc_area"#r"E:\typology\data\3_MovingWindow\MSPA_rc_area"#r"D:\NEW_WORKING\MSPA_rc_area" # Output directory for area reclassification
 rc_type = "edge"  # Select type: "edge" or "area"
 # Note: patch number is not reclassified, since it is derived from area using RegionGroup
 
 # RegionGroup- only to be run on area to calculate patch number
-rg_out = r"D:\NEW_WORKING\rg" # Output directory for region group results
+rg_out = r"D:\Mikayla\site_selection\2_MSPA\rg"#r"D:\NEW_WORKING\rg" # Output directory for region group results
 neighbor="EIGHT" # Specifies neighbor connectivity: "FOUR" or "EIGHT"
 grouping = "within" # Assigns a zone for each group of connected cells
 link = "ADD_LINK" # Assigns an ID to each group of connected cells (each group has a unique ID)
 # Note: Input is area_rc_out by default, which is how the patch number is derived from area
 
 # Reclass Region Group- only to be used to set background values to 0
-rc_rg_in = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg" # Input directory for reclass region group
-rc_rg_out = r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg_rc" # Output directory for reclass region group
+rc_rg_in = r"D:\Mikayla\site_selection\2_MSPA\rg"#r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg" # Input directory for reclass region group
+rc_rg_out = r"D:\Mikayla\site_selection\2_MSPA\rg_rc"#r"D:\Mikayla_RA\RA_S25\NEW_WORKING\rg_rc" # Output directory for reclass region group
 
 # Moving window
-mw_in = r"E:\typology\data\3_MovingWindow\MSPA_rc_edge" # Input folder for moving window
-mw_out = r"E:\typology\data\3_MovingWindow\mw_results" # Output folder to hold moving window results
-mw_radius = 1000
-stat = "SUM"  # Select statistics type: "VARIETY", or "SUM"
+# Use the following input when running moving window for edge or area (Reclassified output)
+#mw_in = r"D:\Mikayla\site_selection\2_MSPA\MSPA_rc_area"#r"E:\typology\data\3_MovingWindow\MSPA_rc_edge" # Input folder for moving window (this will be edge or area)
+# Use the following input when running moving window for patch number (RegionGroup output)
+mw_in = r"D:\Mikayla\site_selection\2_MSPA\rg_rc" #location of region group reclassified output 
+##`r"E:\typology\data\3_MovingWindow\mw_results" # Output folder to hold moving window results- not needed since output folder is created dynamically based on type update 7/19
+mw_radius = 1000 # set radius for moving window, units are in meters
+mw_type = "pn"  # Select type: "edge" or "area" or "pn"
+stat = "VARIETY"  # Select statistics type: "VARIETY" (variety for patch number), or "SUM" (sum for edge or area)
 
 #########################################    
 
@@ -164,9 +168,9 @@ def rc_rasters(input_raster, rc_type=rc_type):
     """
     Reclassifies MSPA output classes, preserving 3, 17, 103, and 117 as 1, and all others as 0.
 
-    - input raster:
-    - rc_type: 
-    * Note: set outpath in main function
+    - input raster: path to the input raster
+    - rc_type: 'edge' or 'area'
+    * Note: output folders are automatically created in rc_in directory
 
     Returns:
     - reclassfied raster
@@ -177,20 +181,24 @@ def rc_rasters(input_raster, rc_type=rc_type):
 
         # remap based off type
         if rc_type == "edge":
+            edge_rc_out = os.path.join(rc_in, "MSPA_rc_edge") # makes output folder 
+            os.makedirs(edge_rc_out, exist_ok=True)
             output_path = os.path.join(edge_rc_out, f"{year}_rc_edge.tif")
-            # in reality- this should work but it doesn't - so i used Con
-            # remap = arcpy.sa.RemapValue([[3, 1],
-            #                              [103, 1]])
+                        # in reality- this should work but it doesn't - so i used Con
+                        # remap = arcpy.sa.RemapValue([[3, 1],
+                        #                              [103, 1]])
             out_raster = arcpy.sa.Con(
                 (arcpy.sa.Raster(input_raster) == 3) | # edge
                 (arcpy.sa.Raster(input_raster) == 103) | # edge
                 (arcpy.sa.Raster(input_raster) == 105), 1, 0) #perforation
         elif rc_type == "area":
+            area_rc_out = os.path.join(rc_in, "MSPA_rc_area") # makes output folder
+            os.makedirs(area_rc_out, exist_ok=True)
             output_path = os.path.join(area_rc_out, f"{year}_rc_area.tif")
-            # remap = arcpy.sa.RemapValue([[3, 1],
-            #                              [103, 1],
-            #                              [17, 1],
-            #                              [117, 1]])
+                        # remap = arcpy.sa.RemapValue([[3, 1],
+                        #                              [103, 1],
+                        #                              [17, 1],
+                        #                              [117, 1]])
             out_raster = arcpy.sa.Con(
                 (arcpy.sa.Raster(input_raster) == 3) | # edge
                 (arcpy.sa.Raster(input_raster) == 103) | # edge
@@ -233,11 +241,27 @@ neighbor="EIGHT" # Specifies neighbor connectivity: "FOUR" or "EIGHT"
 grouping = "within" # Assigns a zone for each group of connected cells
 link = "ADD_LINK" # Assigns an ID to each group of connected cells (each group has a unique ID)
 # Note: Input is area_rc_out by default, which is how the patch number is derived from area
+
+kiro suggestions
+    Applies a moving windows analysis to the input raster using a specified radius and statistic type.
+    
+    Args:
+        input_raster (str): Path to the input raster.
+        type (str, optional): Type of moving window - used to name output subfolder (mw_{type}). Defaults to mw_type.
+        radius (int/float, optional): Radius for the neighborhood circle. Defaults to mw_radius.
+        stat (str, optional): Statistic type for focal statistics. Defaults to stat.
+
+    Returns:
+        str: Output raster file path if successful, None otherwise.
     """
     try:
         basename = os.path.basename(input_raster)
         year = get_year(basename)
         output_path = os.path.join(output_dir, f"{year}_area_rg.tif")
+
+        # Create 'rg' output folder inside rc_in
+        rg_out = os.path.join(rc_in, "rg")
+        os.makedirs(rg_out, exist_ok=True)
 
         # region group
         if not arcpy.Exists(output_path):
@@ -268,6 +292,10 @@ def rc_rg_rasters(input_raster, output_dir=rc_rg_out):
     try:
         basename = os.path.basename(input_raster)
         output_path = os.path.join(output_dir, f"{os.path.splitext(basename)[0]}_rc.tif")
+
+        # Create 'rg_rc' output folder inside rc_in
+        rg_rc_out = os.path.join(rc_in, "rg_rc")
+        os.makedirs(rg_rc_out, exist_ok=True)
         
         if not arcpy.Exists(output_path):
             out_raster = arcpy.sa.Con(arcpy.sa.Raster(input_raster) == 1, 0, arcpy.sa.Raster(input_raster))
@@ -278,7 +306,7 @@ def rc_rg_rasters(input_raster, output_dir=rc_rg_out):
         print(f"Reclass error: {str(e)}")
         return None
 
-def moving_window(input_raster, output_dir=mw_out, type=mw_type, radius=mw_radius, stat=stat):
+def moving_window(input_raster, type=mw_type, radius=mw_radius, stat=stat): #output_dir=mw_out
     """
     Applies a moving windows analysis to the input raster using a specified radius and statistic type.
     
@@ -295,6 +323,16 @@ def moving_window(input_raster, output_dir=mw_out, type=mw_type, radius=mw_radiu
     try:
         basename = os.path.basename(input_raster)
         year = get_year(basename)
+
+        # Create 3_MW folder one level up from rc_in
+        parent_dir = os.path.dirname(rc_in)
+        mw_base = os.path.join(parent_dir, "3_MW")
+
+        # Create subfolder dynamically based on type
+        output_dir = os.path.join(mw_base, f"mw_{type}")
+        os.makedirs(output_dir, exist_ok=True)
+
+
         output_path = os.path.join(output_dir, f"{year}_{type}_1km.tif")
 
         # mw
@@ -344,7 +382,7 @@ if __name__ == "__main__":
     # rg_start = time.time()
     # rg_results = process_rasters(
     #     region_group,
-    #     area_rc_out,
+    #     area_rc_out, # pulls the file from MSPA reclassified area output folder
     #     use_multiprocessing=True,  # Set to True for multiprocessing.Pool
     #     output_dir=rg_out,
     #     number_neighbors=neighbor,
@@ -372,9 +410,9 @@ if __name__ == "__main__":
     mw_start = time.time()
     mw_results = process_rasters(
         moving_window, 
-        edge_mw_in, # change with mw type 
+        mw_in, # old way - edge_mw_in-change with mw type 
         use_multiprocessing=True,  # Set to True for multiprocessing.Pool
-        output_dir=mw_out, 
+        #output_dir=mw_out, 
         type=mw_type, 
         radius=mw_radius, 
         stat=stat
