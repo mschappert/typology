@@ -8,7 +8,7 @@ years = [2020, 2024]
 
 metric = "pn" # "edge" or "pn" or "area"
 # base_dir = the moving window output folder for the metric, e.g. 3_MovingWindow/mw_area, mw_edge, or mw_pn
-base_dir = r"D:\Mikayla\site_selection\3_MW\mw_pn" # area, edge, or pn,  must match metric
+base_dir = r"D:\Mikayla\site_selection\3_MovingWindow\mw_pn" # area, edge, or pn,  must match metric
 
 ########################################## Code
 

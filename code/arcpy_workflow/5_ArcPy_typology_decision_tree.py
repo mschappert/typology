@@ -11,7 +11,7 @@ import time
 main_workspace = r"D:\Mikayla\site_selection" # main workspace for the project
 
 ######### Time Series #########
-# Remap - Time Series
+# Remap - Time Series ### NOTE this needs to be updated ###############################
 #run each metric type separately to remap
 # input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
 # output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\5_Typology\remap_timeseries"
@@ -23,16 +23,11 @@ main_workspace = r"D:\Mikayla\site_selection" # main workspace for the project
 
 ######### Time Interval #########
 # Remap - Interval
-#input_raster = r"D:\Mikayla\site_selection\4_TS_and_TI\img_diff\pn\*.tif" #r"D:\typology\data\4_TS_and_TI\img_diff\pn\*.tif" # change folder for each metric type
-#output_dir = r"D:\Mikayla\site_selection\5_Typology\remap_interval" #r"D:\typology\data\5_Typology\remap_interval" 
-# built in dont need input and out put now 7/19/26
 metric_type = "pn" # "edge", "area", or "pn"
 
 ######### Combine Rasters (TS or TI) #########
 # Combine Rasters - Time Interval or Time Series
 # all rasters should be in the same folder- it searches by file name to combine by year
-#combine_input = r"D:\Mikayla\site_selection\5_Typology\remap_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\remap_interval" #interval" #timeseries"
-#combine_output = r"D:\Mikayla\site_selection\5_Typology\combined_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval" #interval" #timeseries"
 combine_type = "interval" # "interval" or "timeseries"
 
 ######### Reclassify and Add Typology Names (TS or TI) #########
@@ -123,6 +118,7 @@ def remap_time_series(metric): #(input_dir, output_dir, metric):
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
+                
             else:
                 raise ValueError("Invalid metric specified: {}".format(metric))
 
@@ -184,8 +180,13 @@ def remap_time_interval(metric): #(input_dir, output_dir, metric):
                 ]
                 remap = arcpy.sa.RemapRange(remap_rules)
                 output_raster = arcpy.sa.Reclassify(input_raster_path, "Value", remap, "NODATA")
+
             else:
                 raise ValueError("Invalid metric specified: {}".format(metric))
+
+            # Preserve NoData from original input
+            input_r = arcpy.sa.Raster(input_raster_path)
+            output_raster = arcpy.sa.SetNull(arcpy.sa.IsNull(input_r), output_raster)
 
             if not arcpy.Exists(output_path):
                 output_raster.save(output_path)
@@ -350,7 +351,7 @@ def reclassify_typology(combine_type):
 if __name__ == "__main__":
     print("Starting Processing")
     
-    # Remap Raster - v2 - USE THIS
+    # # Remap Raster - v2 - USE THIS
     # print(f"Starting ({metric_type}) remapping process...")
     # rmp_start = time.time()
     # if combine_type == "interval":
@@ -376,15 +377,15 @@ if __name__ == "__main__":
 
 ####################################
 
-    # Combine Rasters
-    print("Starting -- {combine_type} -- combining process...")
+    # # Combine Rasters
+    print(f"Starting -- {combine_type} -- combining process...")
     c_start = time.time()
     c_results = combine_rasters(combine_type)
     c_duration = time.time() - c_start
     print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
 
     # Reclassify and Add Typology Names
-    print("Starting -- {combine_type} -- typology reclassification...")
+    print(f"Starting -- {combine_type} -- typology reclassification...")
     rc_start = time.time()
     rc_results = reclassify_typology(combine_type)
     rc_duration = time.time() - rc_start
@@ -491,6 +492,43 @@ if __name__ == "__main__":
 
 
 ############################### old way of combining before the use of combine type ################################################ 7/19/26
+
+# ### Parameters ###
+# main_workspace = r"D:\Mikayla\site_selection" # main workspace for the project
+
+# ######### Time Series #########
+# # Remap - Time Series ### NOTE this needs to be updated ###############################
+# #run each metric type separately to remap
+# # input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
+# # output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\5_Typology\remap_timeseries"
+# # metric_type = "edge" # "edge "or "area", "pn"
+
+# # input_raster = r"D:\Typology\data\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
+# # output_dir = r"D:\typology\data\5_Typology\remap_timeseries"
+# # metric_type = "edge" # "edge "or "area", "pn"
+
+# ######### Time Interval #########
+# # Remap - Interval
+# #input_raster = r"D:\Mikayla\site_selection\4_TS_and_TI\img_diff\pn\*.tif" #r"D:\typology\data\4_TS_and_TI\img_diff\pn\*.tif" # change folder for each metric type
+# #output_dir = r"D:\Mikayla\site_selection\5_Typology\remap_interval" #r"D:\typology\data\5_Typology\remap_interval" 
+# # built in dont need input and out put now 7/19/26
+# metric_type = "pn" # "edge", "area", or "pn"
+
+# ######### Combine Rasters (TS or TI) #########
+# # Combine Rasters - Time Interval or Time Series
+# # all rasters should be in the same folder- it searches by file name to combine by year
+# #combine_input = r"D:\Mikayla\site_selection\5_Typology\remap_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\remap_interval" #interval" #timeseries"
+# #combine_output = r"D:\Mikayla\site_selection\5_Typology\combined_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval" #interval" #timeseries"
+# combine_type = "interval" # "interval" or "timeseries"
+
+# ######### Reclassify and Add Typology Names (TS or TI) #########
+# # Reclassify and Add Typology Names - Time Interval or Time Series
+# #rc_input = r"D:\Mikayla\site_selection\5_Typology\combined_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval" #interval OR timeseries
+# #rc_output = r"D:\Mikayla\site_selection\5_Typology\combined_rc_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_rc_interval" #interval OR timeseries
+
+###################################################################################################
+
+
 # takes all posibilties and adds them together (100 + 20 + 2 = 122, AND 100 + 20 + 0 = 0)      
 # def combine_by_year(input_dir, output_dir):
 #     """Automatically combine edge, area, and patch rasters by year."""
