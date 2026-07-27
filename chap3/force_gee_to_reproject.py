@@ -21,7 +21,7 @@ with rasterio.open(src_path) as src:
         src_crs=src.crs,
         dst_transform=ref_transform,
         dst_crs=ref_crs,
-        dst_nodata= 0, # check to see if this is correct
+        dst_nodata= 0, ########### check to see if this is correct
         resampling=Resampling.nearest
     )
 
