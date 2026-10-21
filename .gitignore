@@ -1,3 +1,8 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
 data/combined_interval/00-05_combined.tfw
 data/combined_interval/00-05_combined.tif
 data/combined_interval/00-05_combined.tif.aux.xml
