@@ -9,12 +9,25 @@ the tile position, window offsets, and input paths cross the process
 boundary. Open datasets are cached per process and reused across tiles.
 """
 
+import os
+
 import numpy as np
 import rasterio
 from rasterio.windows import Window
 
 # Per-process cache of open rasterio datasets, keyed by the input path tuple.
 _SOURCE_CACHE = {}
+
+
+def _init_worker_gdal_env(gdal_cache_mb):
+    """Pool initializer: cap GDAL's block cache in each spawn worker.
+
+    Spawn workers start as fresh interpreters and inherit none of the parent's
+    GDAL configuration. Setting GDAL_CACHEMAX here (before any dataset is
+    opened in the worker) keeps every worker's decompressed-block cache bounded
+    so the combined memory of all workers stays within the job's RAM budget.
+    """
+    os.environ["GDAL_CACHEMAX"] = str(int(gdal_cache_mb))
 
 
 def _get_sources(input_paths):
