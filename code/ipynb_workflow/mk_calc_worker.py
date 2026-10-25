@@ -62,6 +62,16 @@ def calculate_mk_for_tile(tile_data):
         valid = (source.read_masks(1, window=window) > 0) & np.isfinite(values)
         yearly[year_index] = np.where(valid, values, np.nan)
 
+    # Background removal using the time series itself: a pixel that is 0 (or
+    # missing) in EVERY year is background outside the study area and is
+    # dropped. A pixel with any nonzero value in any year is kept in full,
+    # including its genuine 0s -- a value rising from 0 is a real increase and
+    # a value falling to 0 is a real decrease, so those 0s must stay in the
+    # trend. Dropped pixels become all-NaN and fail the min_observations check
+    # below, so their Tau is NaN (blank), not a misleading 0.
+    background = np.all(np.isnan(yearly) | (yearly == 0), axis=0)
+    yearly[:, background] = np.nan
+
     pixels = yearly.reshape(n_years, block_height * block_width)
     observation_count = np.isfinite(pixels).sum(axis=0)
     eligible_indices = np.flatnonzero(observation_count >= min_observations)
