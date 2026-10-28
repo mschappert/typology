@@ -8,7 +8,7 @@ import sys
 import time
 
 ### Parameters ###
-main_workspace = r"D:\Mikayla\site_selection" # main workspace for the project
+main_workspace = r"F:\GitHub\typology\data" # main workspace for the project
 
 ######### Time Series #########
 # Remap - Time Series ### NOTE this needs to be updated ###############################
