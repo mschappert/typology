@@ -1,3 +1,13 @@
+###=======================
+##  Before running the script:
+# Make sure Python extension is installed in VS Code.
+# Make sure ArcGIS Pro is installed on your machine.
+## Ctrl + Shift + P to open the command palette in VS Code.
+# type "Python: Select Interpreter" → Enter.
+# Click "Enter interpreter path" → "Find..." → 
+# navigate to the C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe
+# 
+### =======================
 ### Import Packages ###
 import os
 import arcpy
@@ -7,34 +17,35 @@ import re
 import sys
 import time
 
+
+################ make the code so you can run it for just one metric at a time or all at once, once all metrics present
+## combine and reclassify can be available
+
 ### Parameters ###
 main_workspace = r"F:\GitHub\typology\data" # main workspace for the project
 
-######### Time Series #########
-# Remap - Time Series ### NOTE this needs to be updated ###############################
-#run each metric type separately to remap
-# input_raster = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
-# output_dir = r"B:\Mikayla\DATA\Projects\AF\Typology_collection9\5_Typology\remap_timeseries"
-# metric_type = "edge" # "edge "or "area", "pn"
+######### 1.A. Time Series (TS) #########
+## Remap - Time Series
+## NOTE run each metric type separately to remap (set metric_type below)
+metric_type = "pn"  # "edge", "area", or "pn"
+input_raster = os.path.join(main_workspace, "4_TS_and_TI", "TS_zscore", metric_type, f"{metric_type}_MK_tau_z.tif")
+output_dir   = os.path.join(main_workspace, "5_Typology", "remap_timeseries", metric_type)
 
-# input_raster = r"D:\Typology\data\4_TS_and_TI\TS_zscore\edge\edge_MK_tau_z.tif"
-# output_dir = r"D:\typology\data\5_Typology\remap_timeseries"
-# metric_type = "edge" # "edge "or "area", "pn"
+######### 1.B. Time Interval (TI) #########
+## Remap - Interval
+# metric_type = "pn" # "edge", "area", or "pn"
 
-######### Time Interval #########
-# Remap - Interval
-metric_type = "pn" # "edge", "area", or "pn"
+######### 2. Combine Rasters (TS or TI) #########
+## Combine Rasters - Time Interval or Time Series
+## NOTE all rasters should be in the same folder- it searches by file name to combine by year
+combine_type = "timeseries" # "interval" or "timeseries"
 
-######### Combine Rasters (TS or TI) #########
-# Combine Rasters - Time Interval or Time Series
-# all rasters should be in the same folder- it searches by file name to combine by year
-combine_type = "interval" # "interval" or "timeseries"
+#== Only run the next section once all metric types have been run ==
 
-######### Reclassify and Add Typology Names (TS or TI) #########
-# Reclassify and Add Typology Names - Time Interval or Time Series
-#rc_input = r"D:\Mikayla\site_selection\5_Typology\combined_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_interval" #interval OR timeseries
-#rc_output = r"D:\Mikayla\site_selection\5_Typology\combined_rc_interval" #r"D:\typology\data\4_TS_and_TI\1990_2020\combined_rc_interval" #interval OR timeseries
-
+######### 3. Reclassify and Add Typology Names (TS or TI) #########
+## Reclassify and Add Typology Names - Time Interval or Time Series
+rc_input  = os.path.join(main_workspace, "5_Typology", f"combined_{combine_type}")
+rc_output = os.path.join(main_workspace, "5_Typology", f"combined_rc_{combine_type}")
 ###################################################################################################
 
 ### Functions ###
@@ -351,7 +362,7 @@ def reclassify_typology(combine_type):
 if __name__ == "__main__":
     print("Starting Processing")
     
-    # # Remap Raster - v2 - USE THIS
+    # # Remap Raster - v2 - USE THIS FOR BOTH TIME INTERVAL AND TIME SERIES
     # print(f"Starting ({metric_type}) remapping process...")
     # rmp_start = time.time()
     # if combine_type == "interval":
@@ -377,14 +388,14 @@ if __name__ == "__main__":
 
 ####################################
 
-    # # Combine Rasters
+    ## Combine Rasters
     print(f"Starting -- {combine_type} -- combining process...")
     c_start = time.time()
     c_results = combine_rasters(combine_type)
     c_duration = time.time() - c_start
     print("Combine completed in {:.0f} mins. {:.2f} sec.".format(c_duration // 60, c_duration % 60))
 
-    # Reclassify and Add Typology Names
+    ## Reclassify and Add Typology Names
     print(f"Starting -- {combine_type} -- typology reclassification...")
     rc_start = time.time()
     rc_results = reclassify_typology(combine_type)
