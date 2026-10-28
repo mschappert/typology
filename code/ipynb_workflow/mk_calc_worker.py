@@ -72,6 +72,17 @@ def calculate_mk_for_tile(tile_data):
     background = np.all(np.isnan(yearly) | (yearly == 0), axis=0)
     yearly[:, background] = np.nan
 
+    # Endpoint rule: require the first OR last year to have a real (non-zero,
+    # non-missing) value. If BOTH endpoints are 0/missing, the pixel is treated
+    # as background and dropped (set to all-NaN -> NoData). This removes
+    # transient "blip" pixels that were absent at both 1990 and 2020 but briefly
+    # held forest in between (appear-then-disappear), which have no sustained
+    # trend and should not be classified.
+    first_ok = np.isfinite(yearly[0]) & (yearly[0] != 0)
+    last_ok = np.isfinite(yearly[-1]) & (yearly[-1] != 0)
+    endpoint_background = ~(first_ok | last_ok)
+    yearly[:, endpoint_background] = np.nan
+
     pixels = yearly.reshape(n_years, block_height * block_width)
     observation_count = np.isfinite(pixels).sum(axis=0)
     eligible_indices = np.flatnonzero(observation_count >= min_observations)
